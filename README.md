@@ -1,3 +1,19 @@
+# Cadeia de Suprimentos de Vinhos com Hyperledger Fabric 2.5
+## Este projeto visa criar uma cadeia de suprimentos para a indústria vinícola, envolvendo cinco entidades-chave:
+
+* **Viticultor**: Responsável pelo cultivo das uvas nas vinhas.
+* **Produtor de Vinho**: Transforma as uvas em vinho, realizando o processo de fermentação e envelhecimento.
+* **Distribuidor a Granel**: Responsável pela distribuição do vinho em grandes quantidades para outras etapas da cadeia.
+* **Enchedor/Embalador**: Realiza o envase e a embalagem final do vinho.
+* **Varejista**: Comercializa o vinho diretamente aos consumidores.
+
+## Funcionamento
+
+As transações na cadeia de suprimentos são validadas por três entidades: o **Produtor de Vinho**, o **Distribuidor a Granel** e o **Enchedor/Embalador**. Esses validadores garantem a integridade e a autenticidade dos registros.
+
+## Tecnologia Utilizada
+O projeto foi desenvolvido utilizando o **Hyperledger Fabric 2.5**, uma plataforma de blockchain empresarial. Com essa tecnologia, criamos scripts para adicionar duas organizações à rede e implementamos a cadeia de suprimentos de vinhos.
+
 # Configuração inicial da rede
 
 ## Criando rede de teste
