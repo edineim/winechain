@@ -102,23 +102,23 @@ cd fabric-samples/test-network
 ```
 
 ``` 
-./network.sh up createChannel -c mychannel -ca
+./network.sh up createChannel -c mychannel -ca -s couchdb
 ```
 ## Adicionando Organizações
 
 ```
 cd addOrg3
-./addOrg3.sh up -c mychannel -ca
+./addOrg3.sh up -c mychannel -ca -s couchdb
 ```
 
 ```
 cd ../addOrg4
-./addOrg4.sh up -c mychannel -ca
+./addOrg4.sh up -c mychannel -ca -s couchdb
 ```
 
 ```
 cd ../addOrg5
-./addOrg5.sh up -c mychannel -ca
+./addOrg5.sh up -c mychannel -ca -s couchdb
 ```
 
 ## Executando a asset-transfer-events
