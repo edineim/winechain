@@ -94,7 +94,7 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
 ## Criando a Rede e um Canal
 
 ``` 
-cd fabric-samples/test-network
+cd winechain/test-network
 ```
 
 ``` 
@@ -102,36 +102,30 @@ cd fabric-samples/test-network
 ```
 
 ``` 
-./network.sh up createChannel -c mychannel -ca -s couchdb
+./network.sh up createChannel -c channel1 -ca -s couchdb
 ```
 ## Adicionando Organizações
 
 ```
 cd addOrg3
-./addOrg3.sh up -c mychannel -ca -s couchdb
+./addOrg3.sh up -c channel1 -ca -s couchdb
 ```
 
 ```
 cd ../addOrg4
-./addOrg4.sh up -c mychannel -ca -s couchdb
-```
-
-```
-cd ../addOrg5
-./addOrg5.sh up -c mychannel -ca -s couchdb
+./addOrg4.sh up -c channel1 -ca -s couchdb
 ```
 
 ## Executando a asset-transfer-events
 
 ```
 cd ..
-./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-javascript/ -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer','Org3MSP.peer','Org4MSP.peer','Org5MSP.peer')"
+./network.sh deployCC_ch1 -ccn events -ccp ../asset-transfer-events/chaincode-javascript/ -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer','Org3MSP.peer','Org4MSP.peer')"
 ```
 
 ```
-cd ../../asset-transfer-events/application-javascript/
+cd ../asset-transfer-events/application-javascript/
 npm install
-rm -rf wallet
 ```
 
 ``` 
