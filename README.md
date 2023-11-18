@@ -19,7 +19,7 @@ O projeto foi desenvolvido utilizando o **Hyperledger Fabric 2.5**, uma platafor
 ## Criando rede de teste
 
 ``` 
-cd fabric-samples/test-network
+cd winechain/test-network
 ```
 
 ``` 
