@@ -10,9 +10,9 @@ const path = require('path');
 const fs = require('fs');
 const { buildCAClient, registerAndEnrollUser, enrollAdmin } = require('../../test-application/javascript/CAUtil.js');
 
-const { buildCCPOrg1, buildCCPOrg2, buildCCPOrg3, buildWallet } = require('../../test-application/javascript/AppUtil.js');
+const { buildCCPOrg1, buildCCPOrg2, buildCCPOrg3, buildCCPOrg4, buildWallet } = require('../../test-application/javascript/AppUtil.js');
 
-const channelName = 'mychannel';
+const channelName = 'channel1';
 const chaincodeName = 'events';
 
 const org1 = 'Org1MSP';
@@ -23,6 +23,9 @@ const Org2UserId = 'appUser2';
 
 const org3 = 'Org3MSP';
 const Org3UserId = 'appUser3';
+
+const org4 = 'Org4MSP';
+const Org4UserId = 'appUser4';
 
 const RED = '\x1b[31m\n';
 const GREEN = '\x1b[32m\n';
@@ -58,8 +61,6 @@ function saveAssetKeys(keys) {
 	fs.writeFileSync(assetKeysFilePath, data, 'utf8'); 
 
 } 
-
-
 
 /**
  * Perform a sleep -- asynchronous wait
@@ -212,6 +213,55 @@ async function initGatewayForOrg3(useCommitEvents) {
 		return gatewayOrg3;
 	} catch (error) {
 		console.error(`Error in connecting to gateway for Org3: ${error}`);
+		process.exit(1);
+	}
+}
+
+async function initGatewayForOrg4(useCommitEvents) {
+	console.log(`${GREEN}--> Fabric client user & Gateway init: Using Org4 identity to Org4 Peer${RESET}`);
+	// build an in memory object with the network configuration (also known as a connection profile)
+	const ccpOrg4 = buildCCPOrg4();
+
+	// build an instance of the fabric ca services client based on
+	// the information in the network configuration
+	const caOrg4Client = buildCAClient(FabricCAServices, ccpOrg4, 'ca.org4.example.com');
+
+	// setup the wallet to cache the credentials of the application user, on the app server locally
+	const walletPathOrg4 = path.join(__dirname, 'wallet', 'org4');
+	const walletOrg4 = await buildWallet(Wallets, walletPathOrg4);
+
+	// in a real application this would be done on an administrative flow, and only once
+	// stores admin identity in local wallet, if needed
+	await enrollAdmin(caOrg4Client, walletOrg4, org4);
+	// register & enroll application user with CA, which is used as client identify to make chaincode calls
+	// and stores app user identity in local wallet
+	// In a real application this would be done only when a new user was required to be added
+	// and would be part of an administrative flow
+	await registerAndEnrollUser(caOrg4Client, walletOrg4, org4, Org4UserId, 'org4.department1');
+
+	try {
+		// Create a new gateway for connecting to Org's peer node.
+		const gatewayOrg4 = new Gateway();
+
+		if (useCommitEvents) {
+			await gatewayOrg4.connect(ccpOrg4, {
+				wallet: walletOrg4,
+				identity: Org4UserId,
+				discovery: { enabled: true, asLocalhost: true }
+			});
+		} else {
+			await gatewayOrg4.connect(ccpOrg4, {
+				wallet: walletOrg4,
+				identity: Org4UserId,
+				discovery: { enabled: true, asLocalhost: true },
+				eventHandlerOptions: EventStrategies.NONE
+			});
+		}
+
+
+		return gatewayOrg4;
+	} catch (error) {
+		console.error(`Error in connecting to gateway for Org4: ${error}`);
 		process.exit(1);
 	}
 }
@@ -745,15 +795,15 @@ async function main() {
 				switch (option) {
 					case '1':
 						//  contrato, chave, endosso, emissor, dados, entidade
-						await createTransaction(contract2Org1, assetKey, org3, org1, dados_viticultor(), 'Viticultor');
+						await createTransaction(contract2Org1, assetKey, org4, org1, dados_viticultor(), 'Viticultor');
 						console.log(`${BLUE}Operação concluída com sucesso.${RESET}`);
 						break;
 					case '2':
-						await createTransaction(contract2Org1, assetKey, org2, org1, dados_produtor_de_vinho(), 'Produtor de Vinho');
+						await createTransaction(contract2Org1, assetKey, org3, org1, dados_produtor_de_vinho(), 'Produtor de Vinho');
 						console.log(`${BLUE}Operação concluída com sucesso.${RESET}`);
 						break;
 					case '3':
-						await createTransaction(contract2Org1, assetKey, org2, org1, dados_distribuidor_agranel(), 'Distribuidor a Granel');
+						await createTransaction(contract2Org1, assetKey, org3, org1, dados_distribuidor_agranel(), 'Distribuidor a Granel');
 						console.log(`${BLUE}Operação concluída com sucesso.${RESET}`);
 						break;
 					case '4':

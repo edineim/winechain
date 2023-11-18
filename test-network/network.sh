@@ -344,6 +344,7 @@ function deployCC() {
 
 ## Call the script to deploy a chaincode to the channel
 function deployCC_ch1() {
+  CHANNEL_NAME="channel1"
   scripts/deployCC_ch1.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
 
   if [ $? -ne 0 ]; then
@@ -353,6 +354,7 @@ function deployCC_ch1() {
 
 ## Call the script to deploy a chaincode to the channel
 function deployCC_ch2() {
+  CHANNEL_NAME="channel2"
   scripts/deployCC_ch2.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
 
   if [ $? -ne 0 ]; then
