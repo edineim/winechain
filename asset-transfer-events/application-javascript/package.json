@@ -13,6 +13,7 @@
         "lint": "eslint *.js"
     },
     "dependencies": {
+        "express": "^4.18.2",
         "fabric-ca-client": "^2.2.19",
         "fabric-network": "^2.2.19",
         "prompt-sync": "^4.2.0"
