@@ -131,6 +131,98 @@ npm install
 ``` 
 node app.js
 ```
+## Uso
+
+A API oferece endpoints para cada estágio da produção de vinho. Use o Postman ou qualquer cliente HTTP para enviar solicitações para os seguintes endpoints:
+
+1. **Viticultor:**
+
+    - Método: `POST`
+    - URL: `http://localhost:3000/api/viticultor`
+    - Corpo da solicitação (JSON):
+
+        ```json
+        {
+          "Name": "Winery Estate",
+          "Address": "123 Vineyard Lane, Napa Valley, CA",
+          "GrapeVariety": "Chardonnay",
+          "HarvestDate": "2023-01-15"
+        }
+        ```
+
+2. **Produtor de Vinho:**
+
+    - Método: `POST`
+    - URL: `http://localhost:3000/api/produtor-vinho`
+    - Corpo da solicitação (JSON):
+
+        ```json
+        {
+          "ProducerName": "WineCrafters Inc.",
+          "ProducerAddress": "456 Wine Road, Sonoma, CA",
+          "LotNumber": "WC001",
+          "CrushDate": "2023-02-01",
+          "CrushTime": "10:00",
+          "GrapeVariety": "Chardonnay"
+        }
+        ```
+
+3. **Distribuidor a Granel:**
+
+    - Método: `POST`
+    - URL: `http://localhost:3000/api/distribuidor`
+    - Corpo da solicitação (JSON):
+
+        ```json
+        {
+          "DistributorName": "Grape Logistics",
+          "DistributorAddress": "789 Distribution Boulevard, San Francisco, CA",
+          "ShipmentID": "GL001",
+          "ShipmentDate": "2023-02-15",
+          "ShipmentTime": "14:00"
+        }
+        ```
+
+4. **Enchedor/Embalador:**
+
+    - Método: `POST`
+    - URL: `http://localhost:3000/api/enchedor-embalador`
+    - Corpo da solicitação (JSON):
+
+        ```json
+        {
+          "FillerPackerName": "Bottle & Cork",
+          "FillerPackerAddress": "101 Packaging Way, Napa, CA",
+          "LotNumberBottle": "BC001",
+          "FillPackDate": "2023-02-18",
+          "FillPackTime": "11:30"
+        }
+        ```
+
+5. **Varejista:**
+
+    - Método: `POST`
+    - URL: `http://localhost:3000/api/varejista`
+    - Corpo da solicitação (JSON):
+
+        ```json
+        {
+          "RetailerName": "Wine Emporium",
+          "RetailerAddress": "543 Wine Street, San Francisco, CA",
+          "SaleDate": "2023-03-01",
+          "SaleTime": "18:00",
+          "QuantitySold": 100
+        }
+        ```
+
+6. **Histórico de Transações:**
+
+    - Método: `GET`
+    - URL: `http://localhost:3000/api/historico-transacoes`
+
+## Encerrando o Servidor
+
+Para encerrar o servidor, pressione `Ctrl + C` no terminal onde o servidor está sendo executado.
 
 
 
