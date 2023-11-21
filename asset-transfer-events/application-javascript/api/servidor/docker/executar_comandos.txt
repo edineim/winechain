@@ -1,0 +1,5 @@
+# Construa a imagem
+docker build -t meu-servidor-web .
+
+# Execute o contêiner
+docker run -p 8080:80 meu-servidor-web
