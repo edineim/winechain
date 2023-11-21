@@ -278,23 +278,34 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 	console.log(`*** verify asset ${asset.ID}`);
 
 	if (asset) {
-		if (asset.Color === color) {
-			console.log(`*** asset ${asset.ID} has color ${asset.Color}`);
-		} else {
-			console.log(`${RED}*** asset ${asset.ID} has color of ${asset.Color}${RESET}`);
-		}
-		if (asset.Size === size) {
-			console.log(`*** asset ${asset.ID} has size ${asset.Size}`);
-		} else {
-			console.log(`${RED}*** Failed size check from ${org} - asset ${asset.ID} has size of ${asset.Size}${RESET}`);
-		}
-		if (asset.Owner === owner) {
-			console.log(`*** asset ${asset.ID} owned by ${asset.Owner}`);
-		} else {
-			console.log(`${RED}*** Failed owner check from ${org} - asset ${asset.ID} owned by ${asset.Owner}${RESET}`);
-		}
+		// if (asset.Color === color) {
+		// 	console.log(`*** asset ${asset.ID} has color ${asset.Color}`);
+		// } else {
+		// 	console.log(`${RED}*** asset ${asset.ID} has color of ${asset.Color}${RESET}`);
+		// }
+		// if (asset.Size === size) {
+		// 	console.log(`*** asset ${asset.ID} has size ${asset.Size}`);
+		// } else {
+		// 	console.log(`${RED}*** Failed size check from ${org} - asset ${asset.ID} has size of ${asset.Size}${RESET}`);
+		// }
+		// if (asset.Owner === owner) {
+		// 	console.log(`*** asset ${asset.ID} owned by ${asset.Owner}`);
+		// } else {
+		// 	console.log(`${RED}*** Failed owner check from ${org} - asset ${asset.ID} owned by ${asset.Owner}${RESET}`);
+		// }
 		if (asset.AppraisedValue === appraisedValue) {
-			console.log(`*** asset ${asset.ID} has appraised value ${asset.AppraisedValue}`);
+			console.log(`*** asset ${asset.ID} has appraised value:`);
+
+			// Converter a string JSON para um objeto JavaScript
+			var wineData = JSON.parse(asset.AppraisedValue);
+
+			// Loop através das propriedades do objeto e exibir de forma dinâmica
+			for (var prop in wineData) {
+			if (wineData.hasOwnProperty(prop)) {
+				console.log("	 - " + prop + ": " + wineData[prop]);
+			}
+			}
+
 		} else {
 			console.log(`${RED}*** Failed appraised value check from ${org} - asset ${asset.ID} has appraised value of ${asset.AppraisedValue}${RESET}`);
 		}
@@ -324,7 +335,15 @@ function showTransactionData(transactionData) {
 		if (x === chaincode.input.args.length - 1){
 			entidade = chaincode.input.args[x].toString()
 
-			console.log(entidade);
+			// Converter a string JSON para um objeto JavaScript
+			var wineData = JSON.parse(entidade);
+
+			// Loop através das propriedades do objeto e exibir de forma dinâmica
+			for (var prop in wineData) {
+			if (wineData.hasOwnProperty(prop)) {
+				console.log("	 - " + prop + ": " + wineData[prop]);
+			}
+			}
 		}
 		else if (x === 1){
 			console.log(`    - arg:${chaincode.input.args[x].toString()}`);
@@ -481,20 +500,36 @@ async function readAssetKeys(contract, org1) {
 async function main(dataTransaction, nome_da_entidade) {
 	console.log(`${BLUE} **** START ****${RESET}`);
 	try {
-		const gateway1Org1 = await initGatewayForOrg1(true); // transaction handling uses commit events
+		// const gateway1Org1 = await initGatewayForOrg1(true); 
 
-		const gateway2Org1 = await initGatewayForOrg1(); // Org1
 
 		let transaction;
 		let listener;
 
-		const network1Org1 = await gateway1Org1.getNetwork(channelName);
-		const contract1Org1 = network1Org1.getContract(chaincodeName);
+		// const network1Org1 = await gateway1Org1.getNetwork(channelName);
+		// const contract1Org1 = network1Org1.getContract(chaincodeName);
 
-		contract1Org1.removeContractListener(listener);
+		// contract1Org1.removeContractListener(listener);
 
+		const gateway2Org1 = await initGatewayForOrg1(); // Org1
 		const network2Org1 = await gateway2Org1.getNetwork(channelName);
 		const contract2Org1 = network2Org1.getContract(chaincodeName);
+
+		// const gatewayOrg1 = await initGatewayForOrg1(true); // transaction handling uses commit events
+		// const gatewayOrg2 = await initGatewayForOrg2(true);
+		// const gatewayOrg3 = await initGatewayForOrg3(true);
+		// const gatewayOrg4 = await initGatewayForOrg4(true);
+
+		// const networkOrg1 = await gatewayOrg1.getNetwork(channelName);
+		// const networkOrg2 = await gatewayOrg2.getNetwork(channelName);
+		// const networkOrg3 = await gatewayOrg3.getNetwork(channelName);
+		// const networkOrg4 = await gatewayOrg4.getNetwork(channelName);
+
+		// const contractOrg1 = networkOrg1.getContract(chaincodeName);
+		// const contractOrg2 = networkOrg2.getContract(chaincodeName);
+		// const contractOrg3 = networkOrg3.getContract(chaincodeName);
+		// const contractOrg4 = networkOrg4.getContract(chaincodeName);
+
 
 		let randomNumber;
 		let assetKey;
@@ -538,8 +573,7 @@ async function main(dataTransaction, nome_da_entidade) {
 
 			await network2Org1.addBlockListener(listener, {type: 'private'});
 
-			primeira_exe = true;
-	
+			primeira_exe = true;	
 			randomNumber = Math.floor(Math.random() * 1000) + 1;
 			assetKey = `item-${randomNumber}`;
 

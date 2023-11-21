@@ -7,41 +7,86 @@ const port = process.argv[2];
 
 // Importa as funções do app.js
 const { 
-  dados_viticultor,
   dados_produtor_de_vinho,
-  dados_distribuidor_agranel,
-  dados_enchedor_embalador,
+  dados_distribuidor,
   dados_varejista,
-} = require('./appAPI');
+} = require('./appAPI_AllOrg');
 
 app.use(bodyParser.json());
 
-// Endpoint para o Viticultor
-app.post('/api/viticultor', (req, res) => {
-  const { NomeViticultor, Endereco, VariedadeUva, DataHarvest } = req.body;
-  dados_viticultor(NomeViticultor, Endereco, VariedadeUva, DataHarvest);
-  res.json({ message: 'Solicitação do Viticultor recebida com sucesso!', data: { NomeViticultor, Endereco, VariedadeUva, DataHarvest } });
+// Inicialize producerTransaction como um objeto vazio
+let producerTransaction = {};
+
+app.post('/api/produtor-vinho', (req, res) => {
+  const { 
+    NomeViticultor, 
+    EnderecoViticultor, 
+    VariedadeUva, 
+    DataColheita, 
+    NomeProdutorDistribuidor, 
+    EnderecoProdutorDistribuidor, 
+    Lote, 
+    IDRemessa, 
+    DataEmbarque, 
+    HoraEmbarque 
+  } = req.body;
+
+  // Se 'Viticultor' não existir, crie um array vazio
+  if (!producerTransaction.Viticultor) {
+    producerTransaction.Viticultor = [];
+  }
+
+  // Adicione um novo objeto de viticultor ao array
+  const novoViticultor = {
+    NomeViticultor, 
+    EnderecoViticultor, 
+    VariedadeUva, 
+    DataColheita
+  };
+
+  // Adicione o novo viticultor ao array 'Viticultor'
+  producerTransaction.Viticultor.push(novoViticultor);
+
+  // Adicione os outros campos à transação se estiverem presentes no corpo da requisição
+  if (NomeProdutorDistribuidor !== undefined) {
+    producerTransaction.NomeProdutorDistribuidor = NomeProdutorDistribuidor;
+  }
+
+  if (EnderecoProdutorDistribuidor !== undefined) {
+    producerTransaction.Endereco = EnderecoProdutorDistribuidor;
+  }
+
+  if (Lote !== undefined) {
+    producerTransaction.Lote = Lote;
+  }
+
+  if (IDRemessa !== undefined) {
+    producerTransaction.IDRemessa = IDRemessa;
+  }
+
+  if (DataEmbarque !== undefined) {
+    producerTransaction.DataEmbarque = DataEmbarque;
+  }
+
+  if (HoraEmbarque !== undefined) {
+    producerTransaction.HoraEmbarque = HoraEmbarque;
+  }
+
+  console.log('Produtor de Vinho Transaction:', producerTransaction);
+  // main(producerTransaction, 'Producer');  // Chame a função 'main' com a entidade 'Producer'
+
+  res.json({ 
+    message: 'Solicitação do Produtor de Vinho recebida com sucesso!', 
+    data: producerTransaction
+  });
 });
 
-// Endpoint para o Produtor de Vinho
-app.post('/api/produtor-vinho', (req, res) => {
-  const { NomeProdutor, Endereco, Lote, DataCrush, HoraCrush, VariedadeUva } = req.body;
-  dados_produtor_de_vinho(NomeProdutor, Endereco, Lote, DataCrush, HoraCrush, VariedadeUva);
-  res.json({ message: 'Solicitação do Produtor de Vinho recebida com sucesso!', data: { NomeProdutor, Endereco, Lote, DataCrush, HoraCrush, VariedadeUva } });
-});
 
 // Endpoint para o Distribuidor a Granel
 app.post('/api/distribuidor', (req, res) => {
   const { NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque } = req.body;
-  dados_distribuidor_agranel(NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque);
+  dados_distribuidor(NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque);
   res.json({ message: 'Solicitação do Distribuidor recebida com sucesso!', data: { NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque } });
-});
-
-// Endpoint para o Enchedor/Embalador
-app.post('/api/enchedor-embalador', (req, res) => {
-  const { NomeEnchedorEmbalador, Endereco, NumeroLote, DataEnchimentoEmbalagem, HorarioEnchimentoEmbalagem } = req.body;
-  dados_enchedor_embalador(NomeEnchedorEmbalador, Endereco, NumeroLote, DataEnchimentoEmbalagem, HorarioEnchimentoEmbalagem);
-  res.json({ message: 'Solicitação do Enchedor/Embalador recebida com sucesso!', data: { NomeEnchedorEmbalador, Endereco, NumeroLote, DataEnchimentoEmbalagem, HorarioEnchimentoEmbalagem } });
 });
 
 // Endpoint para o Varejista
@@ -52,14 +97,14 @@ app.post('/api/varejista', (req, res) => {
 });
 
 
-if (port === '3030') {
-  entidade = 'Viticultor';
-} else if (port === '3040') {
+if (port === '3040') {
   entidade = 'Produtor de vinho';
 } else if (port === '3050') {
-  entidade = 'Enchedor/Embalador';
+  entidade = 'Distribuidor';
 } else if (port === '3060') {
   entidade = 'Varejista';
+} else if (port === '3070') {
+  entidade = 'Consulta';
 }
 
 // Iniciar o servidor
