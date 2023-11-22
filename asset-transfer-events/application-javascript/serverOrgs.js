@@ -73,7 +73,7 @@ app.post('/api/produtor-vinho', (req, res) => {
     producerTransaction.HoraEmbarque = HoraEmbarque;
   }
 
-  console.log('Produtor de Vinho Transaction:', producerTransaction);
+  // console.log('Produtor de Vinho Transaction:', producerTransaction);
   dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUva, DataColheita, NomeProdutorDistribuidor, EnderecoProdutorDistribuidor, Lote, IDRemessa, DataEmbarque, HoraEmbarque)
   res.json({ 
     message: 'Solicitação do Produtor de Vinho recebida com sucesso!', 

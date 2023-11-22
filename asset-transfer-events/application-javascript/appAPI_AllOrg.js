@@ -38,29 +38,29 @@ const prompt = require('prompt-sync')();
 
 let primeira_exe = false;
 
-const assetKeysFilePath = path.join(__dirname, 'assetKeys.json');
-const assetKeys = loadAssetKeys();
+// const assetKeysFilePath = path.join(__dirname, 'assetKeys.json');
+// const assetKeys = loadAssetKeys();
 
-function loadAssetKeys() {
-	try {
-	  if (!fs.existsSync(assetKeysFilePath)) {
-		saveAssetKeys([]); // Cria o arquivo se não existir
-		return [];
-	  }
+// function loadAssetKeys() {
+// 	try {
+// 	  if (!fs.existsSync(assetKeysFilePath)) {
+// 		saveAssetKeys([]); // Cria o arquivo se não existir
+// 		return [];
+// 	  }
   
-	  const data = fs.readFileSync(assetKeysFilePath, 'utf8');
-	  return JSON.parse(data);
-	} catch (error) {
-	  console.error(`Erro ao carregar as chaves de ativos: ${error}`);
-	  return [];
-	}
-  }
+// 	  const data = fs.readFileSync(assetKeysFilePath, 'utf8');
+// 	  return JSON.parse(data);
+// 	} catch (error) {
+// 	  console.error(`Erro ao carregar as chaves de ativos: ${error}`);
+// 	  return [];
+// 	}
+//   }
 
-function saveAssetKeys(keys) {
-	const data = JSON.stringify(keys);
-	fs.writeFileSync(assetKeysFilePath, data, 'utf8'); 
+// function saveAssetKeys(keys) {
+// 	const data = JSON.stringify(keys);
+// 	fs.writeFileSync(assetKeysFilePath, data, 'utf8'); 
 
-} 
+// } 
 
 /**
  * Perform a sleep -- asynchronous wait
@@ -355,10 +355,10 @@ function showTransactionData(transactionData) {
 
 			// Loop através das propriedades do objeto e exibir de forma dinâmica
 			for (var prop in wineData) {
-				if (prop === 'Viticultor'){
-					let aux = JSON.stringify(wineData)
-					console.log(aux)
-				}
+				// if (prop === 'Viticultor'){
+				// 	let aux = JSON.stringify(wineData)
+				// 	console.log(aux)
+				// }
 			if (wineData.hasOwnProperty(prop)) {
 				console.log("	 - " + prop + ": " + wineData[prop]);
 			}
@@ -405,7 +405,7 @@ function dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUv
     producerTransaction.DataEmbarque = DataEmbarque;
     producerTransaction.HoraEmbarque = HoraEmbarque;
 
-    console.log('Produtor de Vinho Transaction:', producerTransaction);
+    // console.log('Produtor de Vinho Transaction:', producerTransaction);
     main(producerTransaction, 'Producer', 1);  // Chame a função 'main' com a entidade 'Producer'
 }
 
@@ -458,11 +458,7 @@ async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, 
 
         transaction.setEndorsingOrganizations(endorsingOrg);
 
-		// const entityData = { nome_da_entidade, assetKeys: [assetKey] };
-		// assetKeys.push(entityData);
-		// saveAssetKeys(assetKeys);
-
-        await transaction.submit(assetKey, 'blue', '10', 'Sam', JSON.stringify(dados));
+        await transaction.submit(assetKey, 'blue', '10', nome_da_entidade, JSON.stringify(dados));
         console.log(`${GREEN}<-- Submit CreateAsset Result: committed, asset ${assetKey}${RESET}`);
         await sleep(5000);
 
@@ -472,6 +468,167 @@ async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, 
         console.log(`${RED}<-- Failed: CreateAsset - ${error}${RESET}`);
     }
 }
+
+async function queryAssetByKey(contract, assetKey) {
+    try {
+        const assetBuffer = await contract.evaluateTransaction('queryAssetByKey', assetKey);
+        // Verificar se o ativo foi encontrado
+        if (!assetBuffer || assetBuffer.length === 0) {
+            console.log(`${RED}<-- Asset not found for Key: ${assetKey}${RESET}`);
+            return;
+        }
+
+        // Converter o buffer do ativo para uma string JSON
+        const assetString = assetBuffer.toString('utf8');
+
+        // Imprimir detalhes do ativo
+        console.log(`${GREEN}Asset Details for Key ${assetKey}:${RESET}`);
+        console.log(JSON.parse(assetString));
+
+	} catch (queryError) {
+		console.error(`${RED}<-- Failed to query asset - ${queryError}${RESET}`);
+	}
+}
+
+async function transferTransaction(contract, assetKey, endorsingOrg, nome_da_entidade, dados_adicionais){
+	let transaction;
+	try {
+		// T R A N S F E R
+		console.log(`${GREEN}--> Submit Transaction: TransferAsset ${assetKey} to ${nome_da_entidade}`);
+		transaction = contract.createTransaction('TransferAsset');
+
+		// update the private data with new salt and assign to the transaction
+		const randomNumber = Math.floor(Math.random() * 100) + 1;
+		const asset_properties = {
+			object_type: 'asset_properties',
+			asset_id: assetKey,
+			salt: Buffer.from(randomNumber.toString()).toString('hex'),
+			dados_adicionais: dados_adicionais
+		};
+		const asset_properties_string = JSON.stringify(asset_properties);
+		transaction.setTransient({
+			asset_properties: Buffer.from(asset_properties_string)
+		});
+		transaction.setEndorsingOrganizations(endorsingOrg);
+
+		await transaction.submit(assetKey, `${nome_da_entidade}`);
+		console.log(`${GREEN}<-- Submit TransferAsset Result: committed, asset ${assetKey}${RESET}`);
+	} catch (transferError) {
+		console.log(`${RED}<-- Failed: TransferAsset - ${transferError}${RESET}`);
+	}
+	await sleep(5000); // need to wait for event to be committed
+}
+
+// async function createGenesisBlock(contract, viticultor, enderecoViticultor, variedadeUva, dataColheita) {
+//     try {
+//         console.log(`${GREEN}--> Submit Transaction: CreateGenesisBlock para Produtor de Vinho${RESET}`);
+
+//         const transaction = contract.createTransaction('CreateGenesisBlock');
+
+//         const genesisData = {
+//             Viticultor: viticultor,
+//             EnderecoViticultor: enderecoViticultor,
+//             VariedadeUva: variedadeUva,
+//             DataColheita: dataColheita,
+//         };
+
+//         await transaction.submit('genesis', JSON.stringify(genesisData));
+//         console.log(`${GREEN}<-- Submit CreateGenesisBlock Result: committed para Produtor de Vinho${RESET}`);
+//         await sleep(5000);
+
+//         // A função readAsset ainda pode ser usada para visualizar os detalhes do bloco genesis.
+//         await readAsset(contract, 'genesis', 'org1', genesisData, 'Produtor de Vinho');
+
+//     } catch (error) {
+//         console.log(`${RED}<-- Failed: CreateGenesisBlock - ${error}${RESET}`);
+//     }
+// }
+
+// async function transferToDistributor(contract, idRemessa, nomeProdutorDistribuidor, enderecoProdutorDistribuidor, lote, dataEmbarque, horaEmbarque) {
+//     try {
+//         console.log(`${GREEN}--> Submit Transaction: TransferToDistributor para Distribuidor${RESET}`);
+//         const transaction = contract.createTransaction('TransferToDistributor');
+
+//         const transferData = {
+//             IDRemessa: idRemessa,
+//             NomeProdutorDistribuidor: nomeProdutorDistribuidor,
+//             EnderecoProdutorDistribuidor: enderecoProdutorDistribuidor,
+//             Lote: lote,
+//             DataEmbarque: dataEmbarque,
+//             HoraEmbarque: horaEmbarque,
+//         };
+
+//         await transaction.submit('genesis', JSON.stringify(transferData));
+//         console.log(`${GREEN}<-- Submit TransferToDistributor Result: committed para Distribuidor${RESET}`);
+
+//     } catch (transferError) {
+//         console.log(`${RED}<-- Failed: TransferToDistributor - ${transferError}${RESET}`);
+//     }
+// }
+
+// async function transferToRetailer(contract, idRemessa, nomeDistribuidor, endereco, dataEmbarque, horaEmbarque) {
+//     try {
+//         console.log(`${GREEN}--> Submit Transaction: TransferToRetailer para Varejista${RESET}`);
+//         const transaction = contract.createTransaction('TransferToRetailer');
+
+//         const transferData = {
+//             IDRemessa: idRemessa,
+//             NomeDistribuidor: nomeDistribuidor,
+//             Endereco: endereco,
+//             DataEmbarque: dataEmbarque,
+//             HoraEmbarque: horaEmbarque,
+//         };
+
+//         await transaction.submit('genesis', JSON.stringify(transferData));
+//         console.log(`${GREEN}<-- Submit TransferToRetailer Result: committed para Varejista${RESET}`);
+
+//     } catch (transferError) {
+//         console.log(`${RED}<-- Failed: TransferToRetailer - ${transferError}${RESET}`);
+//     }
+// }
+
+// async function transferToDistributor(contract, idRemessa, nomeProdutorDistribuidor, enderecoProdutorDistribuidor, lote, dataEmbarque, horaEmbarque) {
+//     try {
+//         console.log(`${GREEN}--> Submit Transaction: TransferToDistributor para Distribuidor${RESET}`);
+//         const transaction = contract.createTransaction('TransferToDistributor');
+
+//         const transferData = {
+//             IDRemessa: idRemessa,
+//             NomeProdutorDistribuidor: nomeProdutorDistribuidor,
+//             EnderecoProdutorDistribuidor: enderecoProdutorDistribuidor,
+//             Lote: lote,
+//             DataEmbarque: dataEmbarque,
+//             HoraEmbarque: horaEmbarque,
+//         };
+
+//         await transaction.submit('genesis', JSON.stringify(transferData));
+//         console.log(`${GREEN}<-- Submit TransferToDistributor Result: committed para Distribuidor${RESET}`);
+
+//     } catch (transferError) {
+//         console.log(`${RED}<-- Failed: TransferToDistributor - ${transferError}${RESET}`);
+//     }
+// }
+
+// async function transferToRetailer(contract, idRemessa, nomeDistribuidor, endereco, dataEmbarque, horaEmbarque) {
+//     try {
+//         console.log(`${GREEN}--> Submit Transaction: TransferToRetailer para Varejista${RESET}`);
+//         const transaction = contract.createTransaction('TransferToRetailer');
+
+//         const transferData = {
+//             IDRemessa: idRemessa,
+//             NomeDistribuidor: nomeDistribuidor,
+//             Endereco: endereco,
+//             DataEmbarque: dataEmbarque,
+//             HoraEmbarque: horaEmbarque,
+//         };
+
+//         await transaction.submit('genesis', JSON.stringify(transferData));
+//         console.log(`${GREEN}<-- Submit TransferToRetailer Result: committed para Varejista${RESET}`);
+
+//     } catch (transferError) {
+//         console.log(`${RED}<-- Failed: TransferToRetailer - ${transferError}${RESET}`);
+//     }
+// }
 
 async function readAsset(contract, assetKey, org1, dados, nome_da_entidade) {
     try {
@@ -608,12 +765,28 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 
 			if (numero_da_entidade === 1){
 				await createTransaction(contract, assetKey, org1, org1, dataTransaction, nome_da_entidade);
+				console.log('----------------------------------------------------------------------------');
+				await queryAssetByKey(contract, assetKey);
+
 			} else if (numero_da_entidade === 2){
-				await createTransaction(contract, assetKey, org2, org2, dataTransaction, nome_da_entidade);
+
+
+				console.log('----------------------------------------------------------------------------');
+				await transferTransaction(contract, assetKey, org2, nome_da_entidade, dataTransaction)
+				console.log('----------------------------------------------------------------------------');
+				await queryAssetByKey(contract, assetKey);
+				
+				// transfere asset
+				// await transferTransaction(contract, assetKey, org2, nome_da_entidade)
+
+				// await createTransaction(contract, assetKey, org2, org2, dataTransaction, nome_da_entidade);
 			} else if (numero_da_entidade === 3){
-				await createTransaction(contract, assetKey, org4, org3, dataTransaction, nome_da_entidade);
+				// transfere asset
+				await transferTransaction(contract, assetKey, org3, nome_da_entidade)
+
+				// await createTransaction(contract, assetKey, org3, org3, dataTransaction, nome_da_entidade);
 			} else if (numero_da_entidade === 4){
-				await readAsset(contract, assetKey, org1, dataTransaction, nome_da_entidade);
+				// await readAsset(contract, assetKey, org1, dataTransaction, nome_da_entidade);
 			}			
 
 			network.removeBlockListener(listener);			

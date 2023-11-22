@@ -124,6 +124,71 @@ class AssetTransferEvents extends Contract {
 		return ctx.stub.deleteState(id);
 	}
 
+	async queryAssetByKey(ctx, assetKey) {
+        const assetBuffer = await ctx.stub.getState(assetKey);
+
+        if (!assetBuffer || assetBuffer.length === 0) {
+            return null; // Ativo não encontrado
+        }
+
+        const assetString = assetBuffer.toString('utf8');
+        const asset = JSON.parse(assetString);
+
+        return asset;
+    }
+
+	// async CreateGenesisBlock(ctx, viticultor, enderecoViticultor, variedadeUva, dataColheita) {
+	// 	const genesisBlock = {
+	// 		Viticultor: viticultor,
+	// 		EnderecoViticultor: enderecoViticultor,
+	// 		VariedadeUva: variedadeUva,
+	// 		DataColheita: dataColheita,
+	// 	};
+	
+	// 	const genesisBlockBuffer = Buffer.from(JSON.stringify(genesisBlock));
+	
+	// 	ctx.stub.setEvent('CreateGenesisBlock', genesisBlockBuffer);
+	// 	return ctx.stub.putState('genesis', genesisBlockBuffer);
+	// }
+
+	// async TransferToDistributor(ctx, idRemessa, nomeProdutorDistribuidor, enderecoProdutorDistribuidor, lote, dataEmbarque, horaEmbarque) {
+	// 	const block = await readState(ctx, 'genesis');
+	
+	// 	const transaction = {
+	// 		IDRemessa: idRemessa,
+	// 		NomeProdutorDistribuidor: nomeProdutorDistribuidor,
+	// 		EnderecoProdutorDistribuidor: enderecoProdutorDistribuidor,
+	// 		Lote: lote,
+	// 		DataEmbarque: dataEmbarque,
+	// 		HoraEmbarque: horaEmbarque,
+	// 	};
+	
+	// 	block.Transactions.push(transaction);
+	
+	// 	const blockBuffer = Buffer.from(JSON.stringify(block));
+	
+	// 	ctx.stub.setEvent('TransferToDistributor', blockBuffer);
+	// 	return ctx.stub.putState('genesis', blockBuffer);
+	// }
+	
+	// async TransferToRetailer(ctx, idRemessa, nomeDistribuidor, endereco, dataEmbarque, horaEmbarque) {
+	// 	const block = await readState(ctx, 'genesis');
+	
+	// 	const transaction = {
+	// 		IDRemessa: idRemessa,
+	// 		NomeDistribuidor: nomeDistribuidor,
+	// 		Endereco: endereco,
+	// 		DataEmbarque: dataEmbarque,
+	// 		HoraEmbarque: horaEmbarque,
+	// 	};
+	
+	// 	block.Transactions.push(transaction);
+	
+	// 	const blockBuffer = Buffer.from(JSON.stringify(block));
+	
+	// 	ctx.stub.setEvent('TransferToRetailer', blockBuffer);
+	// 	return ctx.stub.putState('genesis', blockBuffer);
+	// }
 }
 
 module.exports = AssetTransferEvents;
