@@ -65,13 +65,30 @@ async function readState(ctx, id) {
 class AssetTransferEvents extends Contract {
 
 	// CreateAsset issues a new asset to the world state with given details.
+	// async CreateAsset(ctx, id, color, size, owner, appraisedValue) {
+	// 	const asset = {
+	// 		ID: id,
+	// 		Color: color,
+	// 		Size: size,
+	// 		Owner: owner,
+	// 		AppraisedValue: appraisedValue,
+	// 	};
+	// 	await savePrivateData(ctx, id);
+	// 	const assetBuffer = Buffer.from(JSON.stringify(asset));
+
+	// 	ctx.stub.setEvent('CreateAsset', assetBuffer);
+	// 	return ctx.stub.putState(id, assetBuffer);
+	// }
+
+	// CreateAsset
+	// Mudando a ordem da struct
 	async CreateAsset(ctx, id, color, size, owner, appraisedValue) {
 		const asset = {
 			ID: id,
-			Color: color,
-			Size: size,
 			Owner: owner,
 			AppraisedValue: appraisedValue,
+			Color: color,
+			Size: size			
 		};
 		await savePrivateData(ctx, id);
 		const assetBuffer = Buffer.from(JSON.stringify(asset));
@@ -82,13 +99,25 @@ class AssetTransferEvents extends Contract {
 
 	// TransferAsset updates the owner field of an asset with the given id in
 	// the world state.
-	async TransferAsset(ctx, id, newOwner) {
+	async TransferAssetDistribuidor(ctx, id, newOwner, color) {
 		const asset = await readState(ctx, id);
 		asset.Owner = newOwner;
+		asset.Color = color;
 		const assetBuffer = Buffer.from(JSON.stringify(asset));
 		await savePrivateData(ctx, id);
 
-		ctx.stub.setEvent('TransferAsset', assetBuffer);
+		ctx.stub.setEvent('TransferAssetDistribuidor', assetBuffer);
+		return ctx.stub.putState(id, assetBuffer);
+	}
+
+	async TransferAssetVarejista(ctx, id, newOwner, size) {
+		const asset = await readState(ctx, id);
+		asset.Owner = newOwner;
+		asset.Size = size;
+		const assetBuffer = Buffer.from(JSON.stringify(asset));
+		await savePrivateData(ctx, id);
+
+		ctx.stub.setEvent('TransferAssetVarejista', assetBuffer);
 		return ctx.stub.putState(id, assetBuffer);
 	}
 
@@ -134,7 +163,12 @@ class AssetTransferEvents extends Contract {
         const assetString = assetBuffer.toString('utf8');
         const asset = JSON.parse(assetString);
 
-        return asset;
+		if (asset.dados_adicionais) {
+			return asset;
+		}
+		else{
+			return asset;
+		}	        
     }
 
 	// async CreateGenesisBlock(ctx, viticultor, enderecoViticultor, variedadeUva, dataColheita) {

@@ -278,21 +278,13 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 	console.log(`*** verify asset ${asset.ID}`);
 
 	if (asset) {
-		// if (asset.Color === color) {
-		// 	console.log(`*** asset ${asset.ID} has color ${asset.Color}`);
-		// } else {
-		// 	console.log(`${RED}*** asset ${asset.ID} has color of ${asset.Color}${RESET}`);
-		// }
-		// if (asset.Size === size) {
-		// 	console.log(`*** asset ${asset.ID} has size ${asset.Size}`);
-		// } else {
-		// 	console.log(`${RED}*** Failed size check from ${org} - asset ${asset.ID} has size of ${asset.Size}${RESET}`);
-		// }
-		// if (asset.Owner === owner) {
-		// 	console.log(`*** asset ${asset.ID} owned by ${asset.Owner}`);
-		// } else {
-		// 	console.log(`${RED}*** Failed owner check from ${org} - asset ${asset.ID} owned by ${asset.Owner}${RESET}`);
-		// }
+		
+		if (asset.Owner === owner) {
+			console.log(`*** asset ${asset.ID} owned by ${asset.Owner}`);
+		} else {
+			console.log(`${RED}*** Failed owner check from ${org} - asset ${asset.ID} owned by ${asset.Owner}${RESET}`);
+		}
+
 		if (asset.AppraisedValue === appraisedValue) {
 			console.log(`*** asset ${asset.ID} has appraised value:`);
 
@@ -301,6 +293,7 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 
 			// Loop através das propriedades do objeto e exibir de forma dinâmica
 			for (var prop in wineData) {
+				
 			if (wineData.hasOwnProperty(prop)) {
 				console.log("	 - " + prop + ": " + wineData[prop]);
 			}
@@ -309,6 +302,20 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 		} else {
 			console.log(`${RED}*** Failed appraised value check from ${org} - asset ${asset.ID} has appraised value of ${asset.AppraisedValue}${RESET}`);
 		}
+
+		if (asset.Color === color) {
+			console.log(`*** asset ${asset.ID} has color ${asset.Color}`);
+		} else {
+			console.log(`${RED}*** asset ${asset.ID} has color of ${asset.Color}${RESET}`);
+		}
+
+		if (asset.Size === size) {
+			console.log(`*** asset ${asset.ID} has size ${asset.Size}`);
+		} else {
+			console.log(`${RED}*** Failed size check from ${org} - asset ${asset.ID} has size of ${asset.Size}${RESET}`);
+		}
+
+
 		// if (price) {
 		// 	if (asset.asset_properties && asset.asset_properties.Price === price) {
 		// 		console.log(`*** asset ${asset.ID} has price ${asset.asset_properties.Price}`);
@@ -364,7 +371,7 @@ function showTransactionData(transactionData) {
 			}
 			}
 		}
-		else if (x === 1){
+		else{
 			console.log(`    - arg:${chaincode.input.args[x].toString()}`);
 		}
 		
@@ -458,11 +465,11 @@ async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, 
 
         transaction.setEndorsingOrganizations(endorsingOrg);
 
-        await transaction.submit(assetKey, 'blue', '10', nome_da_entidade, JSON.stringify(dados));
+        await transaction.submit(assetKey, 'blue', 'dez', nome_da_entidade, JSON.stringify(dados));
         console.log(`${GREEN}<-- Submit CreateAsset Result: committed, asset ${assetKey}${RESET}`);
         await sleep(5000);
 
-		await readAsset(contract, assetKey, org1, dados, nome_da_entidade);
+		// await readAsset(contract, assetKey, org1, dados, nome_da_entidade);
 
     } catch (error) {
         console.log(`${RED}<-- Failed: CreateAsset - ${error}${RESET}`);
@@ -477,25 +484,50 @@ async function queryAssetByKey(contract, assetKey) {
             console.log(`${RED}<-- Asset not found for Key: ${assetKey}${RESET}`);
             return;
         }
-
         // Converter o buffer do ativo para uma string JSON
         const assetString = assetBuffer.toString('utf8');
 
         // Imprimir detalhes do ativo
-        console.log(`${GREEN}Asset Details for Key ${assetKey}:${RESET}`);
-        console.log(JSON.parse(assetString));
+        console.log(`${GREEN}Asset Details for Key ${assetKey}:${RESET}`);		
+        // console.log(JSON.parse(assetString));
+
+		let meuObjeto;
+
+		meuObjeto = JSON.parse(assetString);
+
+		for (const propriedade in meuObjeto) {
+			if (meuObjeto.hasOwnProperty(propriedade)) {
+			  const valor = meuObjeto[propriedade];
+		  
+			  // Tenta fazer o parsing da string JSON
+			  let objetoJSON;
+			  try {
+				objetoJSON = JSON.parse(valor);
+			  } catch (error) {
+				objetoJSON = null;
+			  }
+		  
+			  // Imprime o nome da propriedade e seu valor	
+			//   console.log(typeof objetoJSON)
+
+			  if (objetoJSON  && (typeof valor !== 'number')) {				
+				console.log(`Propriedade: ${propriedade}`);
+				console.log('Valor (objeto JSON):', objetoJSON);
+			  } 
+			}
+		}
 
 	} catch (queryError) {
 		console.error(`${RED}<-- Failed to query asset - ${queryError}${RESET}`);
 	}
 }
 
-async function transferTransaction(contract, assetKey, endorsingOrg, nome_da_entidade, dados_adicionais){
+async function transferTransactionDistribuidor(contract, assetKey, endorsingOrg, nome_da_entidade, dados_adicionais){
 	let transaction;
 	try {
 		// T R A N S F E R
-		console.log(`${GREEN}--> Submit Transaction: TransferAsset ${assetKey} to ${nome_da_entidade}`);
-		transaction = contract.createTransaction('TransferAsset');
+		console.log(`${GREEN}--> Submit Transaction: TransferAssetDistribuidor ${assetKey} to ${nome_da_entidade}`);
+		transaction = contract.createTransaction('TransferAssetDistribuidor');
 
 		// update the private data with new salt and assign to the transaction
 		const randomNumber = Math.floor(Math.random() * 100) + 1;
@@ -503,18 +535,47 @@ async function transferTransaction(contract, assetKey, endorsingOrg, nome_da_ent
 			object_type: 'asset_properties',
 			asset_id: assetKey,
 			salt: Buffer.from(randomNumber.toString()).toString('hex'),
-			dados_adicionais: dados_adicionais
 		};
+
 		const asset_properties_string = JSON.stringify(asset_properties);
 		transaction.setTransient({
 			asset_properties: Buffer.from(asset_properties_string)
 		});
 		transaction.setEndorsingOrganizations(endorsingOrg);
 
-		await transaction.submit(assetKey, `${nome_da_entidade}`);
-		console.log(`${GREEN}<-- Submit TransferAsset Result: committed, asset ${assetKey}${RESET}`);
+		await transaction.submit(assetKey, `${nome_da_entidade}`, `${JSON.stringify(dados_adicionais)}`);
+		console.log(`${GREEN}<-- Submit TransferAssetDistribuidor Result: committed, asset ${assetKey}${RESET}`);
 	} catch (transferError) {
-		console.log(`${RED}<-- Failed: TransferAsset - ${transferError}${RESET}`);
+		console.log(`${RED}<-- Failed: TransferAssetDistribuidor - ${transferError}${RESET}`);
+	}
+	await sleep(5000); // need to wait for event to be committed
+}
+
+async function transferTransactionVarejista(contract, assetKey, endorsingOrg, nome_da_entidade, dados_adicionais){
+	let transaction;
+	try {
+		// T R A N S F E R
+		console.log(`${GREEN}--> Submit Transaction: TransferAssetVarejista ${assetKey} to ${nome_da_entidade}`);
+		transaction = contract.createTransaction('TransferAssetVarejista');
+
+		// update the private data with new salt and assign to the transaction
+		const randomNumber = Math.floor(Math.random() * 100) + 1;
+		const asset_properties = {
+			object_type: 'asset_properties',
+			asset_id: assetKey,
+			salt: Buffer.from(randomNumber.toString()).toString('hex'),
+		};
+
+		const asset_properties_string = JSON.stringify(asset_properties);
+		transaction.setTransient({
+			asset_properties: Buffer.from(asset_properties_string)
+		});
+		transaction.setEndorsingOrganizations(endorsingOrg);
+
+		await transaction.submit(assetKey, `${nome_da_entidade}`, `${JSON.stringify(dados_adicionais)}`);
+		console.log(`${GREEN}<-- Submit TransferAssetVarejista Result: committed, asset ${assetKey}${RESET}`);
+	} catch (transferError) {
+		console.log(`${RED}<-- Failed: TransferAssetVarejista - ${transferError}${RESET}`);
 	}
 	await sleep(5000); // need to wait for event to be committed
 }
@@ -644,11 +705,11 @@ async function readAsset(contract, assetKey, org1, dados, nome_da_entidade) {
 
             // Se resultJSON é um objeto, pode ser usado diretamente
             // Chame a função checkAsset com resultJSON
-            checkAsset(org1, resultJSON, 'blue', '10', 'Sam', JSON.stringify(dados));
+            checkAsset(org1, resultJSON, 'blue', 'dez', 'Sam', JSON.stringify(dados));
         } catch (jsonError) {
             // Se houver um erro ao analisar, pode ser que o resultado já seja um objeto JavaScript
             // Trate o resultado como um objeto
-            checkAsset(org1, resultBuffer, 'blue', '10', 'Sam', JSON.stringify(dados));
+            checkAsset(org1, resultBuffer, 'blue', 'dez', 'Sam', JSON.stringify(dados));
         }
     } catch (error) {
         console.log(`${RED}<-- Failed: ReadAsset - ${error}${RESET}`);
@@ -681,7 +742,7 @@ async function readAssetKeys(contract, org1) {
 
 			console.log(`${GREEN}--> Evaluate: ReadAsset, - ${key}, Le ${entity.nome_da_entidade}${RESET}`);
 			const resultBuffer = await contract.evaluateTransaction('ReadAsset', key);
-			checkAsset(org1, resultBuffer, 'blue', '10', 'Sam', JSON.stringify(entity));
+			checkAsset(org1, resultBuffer, 'blue', 'dez', 'Sam', JSON.stringify(entity));
 		
 		}
 	}
@@ -761,7 +822,7 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			primeira_exe = true;	
 			// randomNumber = Math.floor(Math.random() * 1000) + 1;
 			// assetKey = `item-${randomNumber}`;
-			assetKey = 'item-001';
+			assetKey = 'item-006';
 
 			if (numero_da_entidade === 1){
 				
@@ -771,20 +832,22 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 
 			} else if (numero_da_entidade === 2){
 
-				console.log('----------------------------------------------------------------------------');
-				await transferTransaction(contract, assetKey, org2, nome_da_entidade, dataTransaction)
-				console.log('----------------------------------------------------------------------------');
+				console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
+				await queryAssetByKey(contract, assetKey);
+				console.log('---------------------------------------------------------------------------------------------------------');
+				await transferTransactionDistribuidor(contract, assetKey, org2, nome_da_entidade, dataTransaction);
+				console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
 				await queryAssetByKey(contract, assetKey);
 
-				// transfere asset
-				// await transferTransaction(contract, assetKey, org2, nome_da_entidade)
-
-				// await createTransaction(contract, assetKey, org2, org2, dataTransaction, nome_da_entidade);
 			} else if (numero_da_entidade === 3){
-				// transfere asset
-				await transferTransaction(contract, assetKey, org3, nome_da_entidade)
 
-				// await createTransaction(contract, assetKey, org3, org3, dataTransaction, nome_da_entidade);
+				console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
+				await queryAssetByKey(contract, assetKey);
+				console.log('---------------------------------------------------------------------------------------------------------');
+				await transferTransactionVarejista(contract, assetKey, org3, nome_da_entidade, dataTransaction);
+				console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
+				await queryAssetByKey(contract, assetKey);
+
 			} else if (numero_da_entidade === 4){
 				// await readAsset(contract, assetKey, org1, dataTransaction, nome_da_entidade);
 			}			
