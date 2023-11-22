@@ -764,18 +764,18 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			assetKey = 'item-001';
 
 			if (numero_da_entidade === 1){
+				
 				await createTransaction(contract, assetKey, org1, org1, dataTransaction, nome_da_entidade);
 				console.log('----------------------------------------------------------------------------');
 				await queryAssetByKey(contract, assetKey);
 
 			} else if (numero_da_entidade === 2){
 
-
 				console.log('----------------------------------------------------------------------------');
 				await transferTransaction(contract, assetKey, org2, nome_da_entidade, dataTransaction)
 				console.log('----------------------------------------------------------------------------');
 				await queryAssetByKey(contract, assetKey);
-				
+
 				// transfere asset
 				// await transferTransaction(contract, assetKey, org2, nome_da_entidade)
 
