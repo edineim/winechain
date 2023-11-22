@@ -319,6 +319,21 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 	}
 }
 
+function imprimirPropriedades(obj, prefixo = '') {
+	for (const propriedade in obj) {
+	  if (obj.hasOwnProperty(propriedade)) {
+		const valor = obj[propriedade];
+  
+		// Verificar se o valor é um objeto ou array para chamada recursiva
+		if (typeof valor === 'object' && valor !== null) {
+		  imprimirPropriedades(valor, `${prefixo}${propriedade}.`);
+		} else {
+		  console.log(`${prefixo}${propriedade}: ${valor}`);
+		}
+	  }
+	}
+  }
+
 function showTransactionData(transactionData) {
 	const creator = transactionData.actions[0].header.creator;
 	console.log(`    - submitted by: ${creator.mspid}-${creator.id_bytes.toString('hex')}`);
@@ -340,6 +355,10 @@ function showTransactionData(transactionData) {
 
 			// Loop através das propriedades do objeto e exibir de forma dinâmica
 			for (var prop in wineData) {
+				if (prop === 'Viticultor'){
+					let aux = JSON.stringify(wineData)
+					console.log(aux)
+				}
 			if (wineData.hasOwnProperty(prop)) {
 				console.log("	 - " + prop + ": " + wineData[prop]);
 			}
@@ -387,7 +406,7 @@ function dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUv
     producerTransaction.HoraEmbarque = HoraEmbarque;
 
     console.log('Produtor de Vinho Transaction:', producerTransaction);
-    // main(producerTransaction, 'Producer');  // Chame a função 'main' com a entidade 'Producer'
+    main(producerTransaction, 'Producer', 1);  // Chame a função 'main' com a entidade 'Producer'
 }
 
 
@@ -402,7 +421,7 @@ function dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUv
 	  ShipmentTime: HoraEmbarque,
 	};
 	console.log('Distribuidor Transaction:', distributorTransaction);
-	main(distributorTransaction, distributorTransaction.EntityType, 3);
+	main(distributorTransaction, distributorTransaction.EntityType, 2);
   }
   
   // Função para processar dados do varejista
@@ -416,7 +435,7 @@ function dados_varejista(NomeVarejista, Endereco, DataVenda, HorarioVenda, Quant
 	  QuantitySold: Quantidade,
 	};
 	console.log('Varejista Transaction:', retailerTransaction);
-	main(retailerTransaction, retailerTransaction.EntityType, 4);
+	main(retailerTransaction, retailerTransaction.EntityType, 3);
   }
 
 async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, nome_da_entidade) {
@@ -447,11 +466,35 @@ async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, 
         console.log(`${GREEN}<-- Submit CreateAsset Result: committed, asset ${assetKey}${RESET}`);
         await sleep(5000);
 
-        console.log(`${GREEN}--> Evaluate: ReadAsset, - ${assetKey}, Le ${nome_da_entidade} ${RESET}`);
-        const resultBuffer = await contract.evaluateTransaction('ReadAsset', assetKey);
-        checkAsset(org1, resultBuffer, 'blue', '10', 'Sam', JSON.stringify(dados));
+		await readAsset(contract, assetKey, org1, dados, nome_da_entidade);
+
     } catch (error) {
         console.log(`${RED}<-- Failed: CreateAsset - ${error}${RESET}`);
+    }
+}
+
+async function readAsset(contract, assetKey, org1, dados, nome_da_entidade) {
+    try {
+        console.log(`${GREEN}--> Evaluate: ReadAsset, - ${assetKey}, Le ${nome_da_entidade} ${RESET}`);
+        const resultBuffer = await contract.evaluateTransaction('ReadAsset', assetKey);
+
+        // Certifique-se de que resultBuffer é uma string antes de tentar analisá-la como JSON
+        const resultString = resultBuffer.toString('utf8');
+
+        try {
+            // Tente analisar resultString como JSON
+            const resultJSON = JSON.parse(resultString);
+
+            // Se resultJSON é um objeto, pode ser usado diretamente
+            // Chame a função checkAsset com resultJSON
+            checkAsset(org1, resultJSON, 'blue', '10', 'Sam', JSON.stringify(dados));
+        } catch (jsonError) {
+            // Se houver um erro ao analisar, pode ser que o resultado já seja um objeto JavaScript
+            // Trate o resultado como um objeto
+            checkAsset(org1, resultBuffer, 'blue', '10', 'Sam', JSON.stringify(dados));
+        }
+    } catch (error) {
+        console.log(`${RED}<-- Failed: ReadAsset - ${error}${RESET}`);
     }
 }
 
@@ -559,8 +602,9 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			await network.addBlockListener(listener, {type: 'private'});
 
 			primeira_exe = true;	
-			randomNumber = Math.floor(Math.random() * 1000) + 1;
-			assetKey = `item-${randomNumber}`;
+			// randomNumber = Math.floor(Math.random() * 1000) + 1;
+			// assetKey = `item-${randomNumber}`;
+			assetKey = 'item-001';
 
 			if (numero_da_entidade === 1){
 				await createTransaction(contract, assetKey, org1, org1, dataTransaction, nome_da_entidade);
@@ -569,10 +613,8 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			} else if (numero_da_entidade === 3){
 				await createTransaction(contract, assetKey, org4, org3, dataTransaction, nome_da_entidade);
 			} else if (numero_da_entidade === 4){
-				await createTransaction(contract, assetKey, org3, org4, dataTransaction, nome_da_entidade);
-			}
-
-			
+				await readAsset(contract, assetKey, org1, dataTransaction, nome_da_entidade);
+			}			
 
 			network.removeBlockListener(listener);			
 

@@ -1,23 +1,26 @@
-# gerar_qrcode.py
-
 import qrcode
-import sys
+from PIL import Image
 
-# Obtem o conteúdo do QR code a partir dos argumentos da linha de comando
-conteudo_qr = sys.argv[1]
+# Dados para o QR Code
+dados_qrcode = "Hello, QR Code!"
 
-# Criação do QR code
+# Criar um objeto QR Code
 qr = qrcode.QRCode(
-    version=5,
+    version=1,
     error_correction=qrcode.constants.ERROR_CORRECT_L,
     box_size=10,
     border=4,
 )
-qr.add_data(conteudo_qr)
+
+# Adicionar dados ao QR Code
+qr.add_data(dados_qrcode)
 qr.make(fit=True)
 
-# Criação de uma imagem do QR code
-imagem_qr = qr.make_image(fill_color="black", back_color="white")
+# Criar uma imagem do QR Code
+img_qr = qr.make_image(fill_color="black", back_color="white")
 
-# Exibe a imagem na console
-imagem_qr.show()
+# Salvar a imagem (opcional)
+# img_qr.save("qrcode.png")
+
+# Exibir a imagem
+# img_qr.show()

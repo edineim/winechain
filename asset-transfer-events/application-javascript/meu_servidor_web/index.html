@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relógio</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f2f2f2;
+        }
+
+        #relogio {
+            font-size: 3em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="relogio"></div>
+
+    <script>
+        function atualizarRelogio() {
+            var agora = new Date();
+            var horas = agora.getHours().toString().padStart(2, '0');
+            var minutos = agora.getMinutes().toString().padStart(2, '0');
+            var segundos = agora.getSeconds().toString().padStart(2, '0');
+
+            var formato24h = true; // Alterne para false para usar formato de 12 horas
+
+            var textoRelogio = formato24h ? `${horas}:${minutos}:${segundos}` : formatarHora12h(agora);
+
+            document.getElementById('relogio').textContent = textoRelogio;
+        }
+
+        function formatarHora12h(data) {
+            var horas = data.getHours() % 12 || 12;
+            var minutos = data.getMinutes().toString().padStart(2, '0');
+            var periodo = data.getHours() >= 12 ? 'PM' : 'AM';
+
+            return `${horas}:${minutos} ${periodo}`;
+        }
+
+        // Atualiza o relógio a cada segundo
+        setInterval(atualizarRelogio, 1000);
+        
+        // Inicializa o relógio quando a página é carregada
+        atualizarRelogio();
+    </script>
+</body>
+</html>
