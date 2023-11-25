@@ -200,10 +200,10 @@ A API oferece endpoints para cada estágio da produção de vinho. Use o Postman
         }
         ```
 
-4. **Varejista:**
+4. **Atacadista:**
 
     - Método: `POST`
-    - URL: `http://localhost:3060/api/varejista`
+    - URL: `http://localhost:3060/api/atacadista`
     - Corpo da solicitação (JSON):
 
         ```json
