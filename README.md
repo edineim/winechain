@@ -128,98 +128,113 @@ cd ../asset-transfer-events/application-javascript/
 npm install
 ```
 
+# Iniciar Produtor de Vinho
+
 ``` 
-node app.js
+node serverOrgs.js 3040
 ```
+
+# Iniciar Distribuidor 
+
+``` 
+node serverOrgs.js 3050
+```
+
+# Iniciar Atacadista
+
+``` 
+node serverOrgs.js 3060
+```
+
+# Iniciar Varejista
+
+``` 
+node serverOrgs.js 3070
+```
+
+# Iniciar Leitura de Ledger
+
+``` 
+node ledger.js 3080
+```
+
 ## Uso
 
 A API oferece endpoints para cada estágio da produção de vinho. Use o Postman ou qualquer cliente HTTP para enviar solicitações para os seguintes endpoints:
 
-1. **Viticultor:**
+1. **Produtor de Vinho:**
 
     - Método: `POST`
-    - URL: `http://localhost:3000/api/viticultor`
+    - URL: `http://localhost:3040/api/produtor-vinho`
     - Corpo da solicitação (JSON):
 
         ```json
         {
-          "Name": "Winery Estate",
-          "Address": "123 Vineyard Lane, Napa Valley, CA",
-          "GrapeVariety": "Chardonnay",
-          "HarvestDate": "2023-01-15"
+          "NomeViticultor": "João da Silva",
+          "EnderecoViticultor": "Fazenda Silva, Vinhedo, SP",
+          "VariedadeUva": "Cabernet Sauvignon",
+          "DataColheita": "2023-09-15",
+          "NomeProdutorVinho": "Vinhos do Vale",
+          "EnderecoProdutorVinho": "Estrada do Vinho, 456, Vinhedo, SP",
+          "Lote": "A123",
+          "IDRemessa": "PV2023-001",
+          "DataEmbarque": "2023-10-01",
+          "HoraEmbarque": "14:30"
         }
         ```
 
-2. **Produtor de Vinho:**
+3. **Distribuidor:**
 
     - Método: `POST`
-    - URL: `http://localhost:3000/api/produtor-vinho`
+    - URL: `http://localhost:3050/api/distribuidor`
     - Corpo da solicitação (JSON):
 
         ```json
         {
-          "ProducerName": "WineCrafters Inc.",
-          "ProducerAddress": "456 Wine Road, Sonoma, CA",
-          "LotNumber": "WC001",
-          "CrushDate": "2023-02-01",
-          "CrushTime": "10:00",
-          "GrapeVariety": "Chardonnay"
+          "NomeDistribuidor": "Distribuidora Vinífera",
+          "Endereco": " Av. dos Vinhos, 789, Distribuicidade, SP",
+          "Lote": "A123",
+          "IDRemessa": "DV2023-001",
+          "DataEmbarque": "2023-10-02",
+          "HoraEmbarque": "10:45"
         }
         ```
 
-3. **Distribuidor a Granel:**
+4. **Varejista:**
 
     - Método: `POST`
-    - URL: `http://localhost:3000/api/distribuidor`
+    - URL: `http://localhost:3060/api/varejista`
     - Corpo da solicitação (JSON):
 
         ```json
         {
-          "DistributorName": "Grape Logistics",
-          "DistributorAddress": "789 Distribution Boulevard, San Francisco, CA",
-          "ShipmentID": "GL001",
-          "ShipmentDate": "2023-02-15",
-          "ShipmentTime": "14:00"
-        }
-        ```
-
-4. **Enchedor/Embalador:**
-
-    - Método: `POST`
-    - URL: `http://localhost:3000/api/enchedor-embalador`
-    - Corpo da solicitação (JSON):
-
-        ```json
-        {
-          "FillerPackerName": "Bottle & Cork",
-          "FillerPackerAddress": "101 Packaging Way, Napa, CA",
-          "LotNumberBottle": "BC001",
-          "FillPackDate": "2023-02-18",
-          "FillPackTime": "11:30"
+          "NomeAtacadista": "Atacado dos Vinhos",
+          "EnderecoAtacadista": "Rua das Garrafas, 101, Atacadópolis, SP",
+          "IDRemessaAtacadista": "AV2023-001",
+          "DataRecebimentoAtacadista": "2023-10-03",
+          "HoraRecebimentoAtacadista": "08:15",
+          "QuantidadeRecebidaAtacadista": "500 caixas"
         }
         ```
 
 5. **Varejista:**
 
     - Método: `POST`
-    - URL: `http://localhost:3000/api/varejista`
+    - URL: `http://localhost:3070/api/varejista`
     - Corpo da solicitação (JSON):
 
         ```json
         {
-          "RetailerName": "Wine Emporium",
-          "RetailerAddress": "543 Wine Street, San Francisco, CA",
-          "SaleDate": "2023-03-01",
-          "SaleTime": "18:00",
-          "QuantitySold": 100
+          "NomeVarejista": "Vinhos & Mais",
+          "Endereco": "Praça da Taça, 7, Varejo City, SP",
+          "Lote": "A123",
+          "DataVenda": "2023-07-01",
+          "IDRemessa": "VR2023-001",
+          "DataEmbarque": "17:30",
+          "HoraEmbarque": "11:20"
         }
         ```
-
-6. **Histórico de Transações:**
-
-    - Método: `GET`
-    - URL: `http://localhost:3000/api/historico-transacoes`
-
+        
 ## Encerrando o Servidor
 
 Para encerrar o servidor, pressione `Ctrl + C` no terminal onde o servidor está sendo executado.
