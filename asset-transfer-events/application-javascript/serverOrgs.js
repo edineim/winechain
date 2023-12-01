@@ -5,12 +5,14 @@ const bodyParser = require('body-parser');
 const app = express();
 const QRCode = require('qrcode'); 
 const port = process.argv[2];
+const { main } = require('./appAPI_AllOrg');
 
 // Importa as funções do app.js
 const { 
   dados_produtor_de_vinho,
   dados_distribuidor,
   dados_varejista,
+  dados_atacadista,
 } = require('./appAPI_AllOrg');
 
 app.use(bodyParser.json());
@@ -24,8 +26,8 @@ app.post('/api/produtor-vinho', (req, res) => {
     EnderecoViticultor, 
     VariedadeUva, 
     DataColheita, 
-    NomeProdutorDistribuidor, 
-    EnderecoProdutorDistribuidor, 
+    NomeProdutorVinho, 
+    EnderecoProdutorVinho, 
     Lote, 
     IDRemessa, 
     DataEmbarque, 
@@ -49,12 +51,12 @@ app.post('/api/produtor-vinho', (req, res) => {
   producerTransaction.Viticultor.push(novoViticultor);
 
   // Adicione os outros campos à transação se estiverem presentes no corpo da requisição
-  if (NomeProdutorDistribuidor !== undefined) {
-    producerTransaction.NomeProdutorDistribuidor = NomeProdutorDistribuidor;
+  if (NomeProdutorVinho !== undefined) {
+    producerTransaction.NomeProdutorVinho = NomeProdutorVinho;
   }
 
-  if (EnderecoProdutorDistribuidor !== undefined) {
-    producerTransaction.Endereco = EnderecoProdutorDistribuidor;
+  if (EnderecoProdutorVinho !== undefined) {
+    producerTransaction.Endereco = EnderecoProdutorVinho;
   }
 
   if (Lote !== undefined) {
@@ -74,28 +76,33 @@ app.post('/api/produtor-vinho', (req, res) => {
   }
 
   // console.log('Produtor de Vinho Transaction:', producerTransaction);
-  dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUva, DataColheita, NomeProdutorDistribuidor, EnderecoProdutorDistribuidor, Lote, IDRemessa, DataEmbarque, HoraEmbarque)
+  dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUva, DataColheita, NomeProdutorVinho, EnderecoProdutorVinho, Lote, IDRemessa, DataEmbarque, HoraEmbarque)
   res.json({ 
     message: 'Solicitação do Produtor de Vinho recebida com sucesso!', 
     data: producerTransaction
   });
 });
 
-
 // Endpoint para o Distribuidor a Granel
 app.post('/api/distribuidor', (req, res) => {
-  const { NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque } = req.body;
-  dados_distribuidor(NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque);
-  res.json({ message: 'Solicitação do Distribuidor recebida com sucesso!', data: { NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque } });
+  const { NomeDistribuidor, Endereco, Lote, IDRemessa, DataEmbarque, HoraEmbarque } = req.body;
+  dados_distribuidor(NomeDistribuidor, Endereco, Lote, IDRemessa, DataEmbarque, HoraEmbarque);
+  res.json({ message: 'Solicitação do Distribuidor recebida com sucesso!', data: { NomeDistribuidor, Endereco, Lote, IDRemessa, DataEmbarque, HoraEmbarque } });
+});
+
+// Endpoint para o Atacadista
+app.post('/api/atacadista', (req, res) => {
+  const { NomeAtacadista, EnderecoAtacadista, IDRemessaAtacadista, DataRecebimentoAtacadista, HoraRecebimentoAtacadista, QuantidadeRecebidaAtacadista } = req.body;
+  dados_atacadista(NomeAtacadista, EnderecoAtacadista, IDRemessaAtacadista, DataRecebimentoAtacadista, HoraRecebimentoAtacadista, QuantidadeRecebidaAtacadista);
+  res.json({ message: 'Solicitação do Atacadista recebida com sucesso!', data: { NomeAtacadista, EnderecoAtacadista, IDRemessaAtacadista, DataRecebimentoAtacadista, HoraRecebimentoAtacadista, QuantidadeRecebidaAtacadista } });
 });
 
 // Endpoint para o Varejista
 app.post('/api/varejista', (req, res) => {
-  const { NomeVarejista, Endereco, DataVenda, HorarioVenda, Quantidade } = req.body;
-  dados_varejista(NomeVarejista, Endereco, DataVenda, HorarioVenda, Quantidade);
-  res.json({ message: 'Solicitação do Varejista recebida com sucesso!', data: { NomeVarejista, Endereco, DataVenda, HorarioVenda, Quantidade } });
+  const { NomeVarejista, Endereco, Lote, DataVenda, IDRemessa, DataEmbarque, HoraEmbarque } = req.body;
+  dados_varejista(NomeVarejista, Endereco, Lote, DataVenda, IDRemessa, DataEmbarque, HoraEmbarque);
+  res.json({ message: 'Solicitação do Varejista recebida com sucesso!', data: { NomeVarejista, Endereco, Lote, DataVenda, IDRemessa, DataEmbarque, HoraEmbarque } });
 });
-
 
 // Função para gerar QR code a partir de uma string
 async function generateQRCode(data) {
@@ -122,7 +129,7 @@ app.post('/api/qrcode', async (req, res) => {
   }
 });
 
-if (port == 3070) {
+if (port == 3000) {
   // Função para gerar QR code a partir de uma string
   async function generateQRCode(data) {
     try {
@@ -183,14 +190,15 @@ if (port == 3070) {
   });
 }
 
-
 if (port === '3040') {
   entidade = 'Produtor de vinho';
 } else if (port === '3050') {
   entidade = 'Distribuidor';
 } else if (port === '3060') {
-  entidade = 'Varejista';
+  entidade = 'Atacadista';
 } else if (port === '3070') {
+  entidade = 'Varejista';
+} else if (port === '3000') {
   entidade = 'QRcode';
 } else if (port === '3080') {
   entidade = 'Ledger';

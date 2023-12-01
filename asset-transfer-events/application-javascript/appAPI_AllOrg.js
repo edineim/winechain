@@ -257,8 +257,7 @@ async function initGatewayForOrg4(useCommitEvents) {
 				eventHandlerOptions: EventStrategies.NONE
 			});
 		}
-
-
+		
 		return gatewayOrg4;
 	} catch (error) {
 		console.error(`Error in connecting to gateway for Org4: ${error}`);
@@ -266,7 +265,98 @@ async function initGatewayForOrg4(useCommitEvents) {
 	}
 }
 
-function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price) {
+function imprimeAsset(resultBuffer) {
+
+	let asset;
+	if (resultBuffer) {
+		asset = JSON.parse(resultBuffer.toString('utf8'));
+	} else {
+		console.log(`${RED}*** Failed to read asset${RESET}`);
+	}
+	console.log(`*** verify asset ${asset.ID}`);
+
+	if (asset) {
+		
+		console.log(`*** asset ${asset.ID} owned by ${asset.Owner}`);
+
+		console.log(`*** asset ${asset.ID} has produtor`);
+
+		// Converter a string JSON para um objeto JavaScript
+		var wineData = JSON.parse(asset.Produtor);
+
+		// Loop através das propriedades do objeto e exibir de forma dinâmica
+		for (var prop in wineData) {
+			
+		if (wineData.hasOwnProperty(prop)) {
+			console.log("	 - " + prop + ": " + wineData[prop]);
+		}
+		}
+
+        // if (typeof asset.Produtor === 'string') {
+		// 	try {
+		// 	  var wineData = JSON.parse(asset.Produtor);
+  
+		// 	  // Verificar se `wineData` é um objeto antes de iterar sobre suas propriedades.
+		// 	  if (typeof wineData === 'object' && wineData !== null) {
+		// 		// Loop através das propriedades do objeto e exibir de forma dinâmica
+		// 		for (var prop in wineData) {
+		// 		  if (wineData.hasOwnProperty(prop)) {
+		// 			console.log(`  - ${prop}: ${wineData[prop]}`);
+		// 		  }
+		// 		}
+		// 	  } else {
+		// 		console.log('*** asset.Produtor is not a valid object.');
+		// 	  }
+		// 	} catch (error) {
+		// 	  console.error('*** Error parsing asset.Produtor:', error);
+		// 	}
+		//   } else {
+		// 	console.log('*** asset.Produtor is not a valid JSON string.');
+		//   }
+	
+
+		console.log(`*** asset ${asset.ID} has distribuidor`);
+
+		// Converter a string JSON para um objeto JavaScript
+		var wineData = JSON.parse(asset.Distribuidor);
+
+		// Loop através das propriedades do objeto e exibir de forma dinâmica
+		for (var prop in wineData) {
+			
+		if (wineData.hasOwnProperty(prop)) {
+			console.log("	 - " + prop + ": " + wineData[prop]);
+		}
+		}
+
+		console.log(`*** asset ${asset.ID} has atacadista`);
+
+		// Converter a string JSON para um objeto JavaScript
+		var wineData = JSON.parse(asset.Atacadista);
+
+		// Loop através das propriedades do objeto e exibir de forma dinâmica
+		for (var prop in wineData) {
+			
+		if (wineData.hasOwnProperty(prop)) {
+			console.log("	 - " + prop + ": " + wineData[prop]);
+		}
+		}
+
+		console.log(`*** asset ${asset.ID} has varejista`);
+
+		// Converter a string JSON para um objeto JavaScript
+		var wineData = JSON.parse(asset.Varejista);
+
+		// Loop através das propriedades do objeto e exibir de forma dinâmica
+		for (var prop in wineData) {
+			
+		if (wineData.hasOwnProperty(prop)) {
+			console.log("	 - " + prop + ": " + wineData[prop]);
+		}
+		}
+	}
+}
+
+function checkAsset(org, resultBuffer, distribuidor, atacadista, varejista, owner, produtor) {
 	console.log(`${GREEN}<-- Query results from ${org}${RESET}`);
 
 	let asset;
@@ -285,11 +375,11 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 			console.log(`${RED}*** Failed owner check from ${org} - asset ${asset.ID} owned by ${asset.Owner}${RESET}`);
 		}
 
-		if (asset.AppraisedValue === appraisedValue) {
+		if (asset.Produtor === produtor) {
 			console.log(`*** asset ${asset.ID} has appraised value:`);
 
 			// Converter a string JSON para um objeto JavaScript
-			var wineData = JSON.parse(asset.AppraisedValue);
+			var wineData = JSON.parse(asset.Produtor);
 
 			// Loop através das propriedades do objeto e exibir de forma dinâmica
 			for (var prop in wineData) {
@@ -300,19 +390,25 @@ function checkAsset(org, resultBuffer, color, size, owner, appraisedValue, price
 			}
 
 		} else {
-			console.log(`${RED}*** Failed appraised value check from ${org} - asset ${asset.ID} has appraised value of ${asset.AppraisedValue}${RESET}`);
+			console.log(`${RED}*** Failed appraised value check from ${org} - asset ${asset.ID} has appraised value of ${asset.Produtor}${RESET}`);
 		}
 
-		if (asset.Color === color) {
-			console.log(`*** asset ${asset.ID} has color ${asset.Color}`);
+		if (asset.Distribuidor === distribuidor) {
+			console.log(`*** asset ${asset.ID} has distribuidor ${asset.Distribuidor}`);
 		} else {
-			console.log(`${RED}*** asset ${asset.ID} has color of ${asset.Color}${RESET}`);
+			console.log(`${RED}*** asset ${asset.ID} has distribuidor of ${asset.Distribuidor}${RESET}`);
 		}
 
-		if (asset.Size === size) {
-			console.log(`*** asset ${asset.ID} has size ${asset.Size}`);
+		if (asset.Atacadista === atacadista) {
+			console.log(`*** asset ${asset.ID} has atacadista ${asset.Atacadista}`);
 		} else {
-			console.log(`${RED}*** Failed size check from ${org} - asset ${asset.ID} has size of ${asset.Size}${RESET}`);
+			console.log(`${RED}*** Failed atacadista check from ${org} - asset ${asset.ID} has atacadista of ${asset.Atacadista}${RESET}`);
+		}
+
+		if (asset.Varejista === varejista) {
+			console.log(`*** asset ${asset.ID} has varejista ${asset.Varejista}`);
+		} else {
+			console.log(`${RED}*** Failed varejista check from ${org} - asset ${asset.ID} has varejista of ${asset.Varejista}${RESET}`);
 		}
 
 
@@ -380,9 +476,10 @@ function showTransactionData(transactionData) {
 
 let producerTransaction;
 let distributorTransaction;
+let atacadistaTransaction;
 let retailerTransaction;
 
-function dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUva, DataColheita, NomeProdutorDistribuidor, EnderecoProdutorDistribuidor, Lote, IDRemessa, DataEmbarque, HoraEmbarque) {
+function dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUva, DataColheita, NomeProdutorVinho, EnderecoProdutorVinho, Lote, IDRemessa, DataEmbarque, HoraEmbarque) {
     // Inicialize producerTransaction se ainda não estiver definido
     if (!producerTransaction) {
         producerTransaction = {};
@@ -405,44 +502,62 @@ function dados_produtor_de_vinho(NomeViticultor, EnderecoViticultor, VariedadeUv
     producerTransaction.Viticultor.push(novoViticultor);
 
     // Adicione os outros campos à transação
-    producerTransaction.NomeProdutorDistribuidor = NomeProdutorDistribuidor;
-    producerTransaction.Endereco = EnderecoProdutorDistribuidor;
+    producerTransaction.NomeProdutorVinho = NomeProdutorVinho;
+    producerTransaction.Endereco = EnderecoProdutorVinho;
     producerTransaction.Lote = Lote;
     producerTransaction.IDRemessa = IDRemessa;
     producerTransaction.DataEmbarque = DataEmbarque;
     producerTransaction.HoraEmbarque = HoraEmbarque;
 
     // console.log('Produtor de Vinho Transaction:', producerTransaction);
-    main(producerTransaction, 'Producer', 1);  // Chame a função 'main' com a entidade 'Producer'
+    main(producerTransaction, 'Produtor', 1);  // Chame a função 'main' com a entidade 'Producer'
 }
 
 
   // Função para processar dados do distribuidor a granel
-  function dados_distribuidor(NomeDistribuidor, Endereco, IDRemessa, DataEmbarque, HoraEmbarque) {
+  function dados_distribuidor(NomeDistribuidor, Endereco, Lote, IDRemessa, DataEmbarque, HoraEmbarque) {
 	distributorTransaction = {
-	  EntityType: 'Distributor',
-	  Name: NomeDistribuidor,
-	  Address: Endereco,
-	  ShipmentID: IDRemessa,
-	  ShipmentDate: DataEmbarque,
-	  ShipmentTime: HoraEmbarque,
+	  Entidade: 'Distributor',
+	  NomeProdutorDistribuidor: NomeDistribuidor,
+	  EnderecoProdutorDistribuidor: Endereco,
+	  Lote: Lote,
+	  IDRemessa: IDRemessa,
+	  DataEmbarque: DataEmbarque,
+	  HoraEmbarque: HoraEmbarque,
 	};
 	console.log('Distribuidor Transaction:', distributorTransaction);
-	main(distributorTransaction, distributorTransaction.EntityType, 2);
+	main(distributorTransaction, distributorTransaction.Entidade, 2);
   }
+
+// Função para processar dados do atacadista
+function dados_atacadista(NomeAtacadista, EnderecoAtacadista, IDRemessaAtacadista, DataRecebimentoAtacadista, HoraRecebimentoAtacadista, QuantidadeRecebidaAtacadista) {
+	atacadistaTransaction = {
+	  Entidade: 'Atacadista',
+	  NomeAtacadista: NomeAtacadista,
+	  EnderecoAtacadista: EnderecoAtacadista,
+	  IDRemessaAtacadista: IDRemessaAtacadista,
+	  DataRecebimentoAtacadista: DataRecebimentoAtacadista,
+	  HoraRecebimentoAtacadista: HoraRecebimentoAtacadista,
+	  QuantidadeRecebidaAtacadista: QuantidadeRecebidaAtacadista,
+	};
+	console.log('Atacadista Transaction:', atacadistaTransaction);
+	main(atacadistaTransaction, atacadistaTransaction.Entidade, 3); 
+  }   
   
   // Função para processar dados do varejista
-function dados_varejista(NomeVarejista, Endereco, DataVenda, HorarioVenda, Quantidade) {
+function dados_varejista(NomeVarejista, Endereco, Lote, DataVenda, IDRemessa, DataEmbarque, HoraEmbarque) {
 	retailerTransaction = {
-	  EntityType: 'Retailer',
-	  Name: NomeVarejista,
-	  Address: Endereco,
-	  SaleDate: DataVenda,
-	  SaleTime: HorarioVenda,
-	  QuantitySold: Quantidade,
+	  Entidade: 'Varejista',
+	  NomeVarejista: NomeVarejista,
+	  Endereco: Endereco,
+	  Lote: Lote, 
+	  DataVenda: DataVenda,
+	  IDRemessa: IDRemessa,
+	  DataEmbarque: DataEmbarque,
+	  HoraEmbarque: HoraEmbarque,
 	};
 	console.log('Varejista Transaction:', retailerTransaction);
-	main(retailerTransaction, retailerTransaction.EntityType, 3);
+	main(retailerTransaction, retailerTransaction.Entidade, 4);
   }
 
 async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, nome_da_entidade) {
@@ -465,15 +580,20 @@ async function createTransaction(contract, assetKey, endorsingOrg, org1, dados, 
 
         transaction.setEndorsingOrganizations(endorsingOrg);
 
-        await transaction.submit(assetKey, 'blue', 'dez', nome_da_entidade, JSON.stringify(dados));
+        await transaction.submit(assetKey, 'null', 'null', 'null', nome_da_entidade, JSON.stringify(dados));
         console.log(`${GREEN}<-- Submit CreateAsset Result: committed, asset ${assetKey}${RESET}`);
         await sleep(5000);
-
-		// await readAsset(contract, assetKey, org1, dados, nome_da_entidade);
-
     } catch (error) {
         console.log(`${RED}<-- Failed: CreateAsset - ${error}${RESET}`);
     }
+	// try {
+	// 	// R E A D
+	// 	console.log(`${GREEN}--> Evaluate: ReadAsset, - ${assetKey} ${RESET}`);
+	// 	const resultBuffer = await contract.evaluateTransaction('ReadAsset', assetKey);
+	// 	imprimeAsset(resultBuffer);
+	// } catch (readError) {
+	// 	console.log(`${RED}<-- Failed: ReadAsset - ${readError}${RESET}`);
+	// }
 }
 
 async function queryAssetByKey(contract, assetKey) {
@@ -514,8 +634,10 @@ async function queryAssetByKey(contract, assetKey) {
 				console.log(`Propriedade: ${propriedade}`);
 				console.log('Valor (objeto JSON):', objetoJSON);
 			  } 
-			}
+			}			
 		}
+
+		return meuObjeto;
 
 	} catch (queryError) {
 		console.error(`${RED}<-- Failed to query asset - ${queryError}${RESET}`);
@@ -549,6 +671,51 @@ async function transferTransactionDistribuidor(contract, assetKey, endorsingOrg,
 		console.log(`${RED}<-- Failed: TransferAssetDistribuidor - ${transferError}${RESET}`);
 	}
 	await sleep(5000); // need to wait for event to be committed
+	// try {
+	// 	// R E A D
+	// 	console.log(`${GREEN}--> Evaluate: ReadAsset, - ${assetKey} ${RESET}`);
+	// 	const resultBuffer = await contract.evaluateTransaction('ReadAsset', assetKey);
+	// 	imprimeAsset(resultBuffer);
+	// } catch (readError) {
+	// 	console.log(`${RED}<-- Failed: ReadAsset - ${readError}${RESET}`);
+	// }
+}
+
+async function transferTransactionAtacadista(contract, assetKey, endorsingOrg, nome_da_entidade, dados_adicionais){
+	let transaction;
+	try {
+		// T R A N S F E R
+		console.log(`${GREEN}--> Submit Transaction: TransferAssetAtacadista ${assetKey} to ${nome_da_entidade}`);
+		transaction = contract.createTransaction('TransferAssetAtacadista');
+
+		// update the private data with new salt and assign to the transaction
+		const randomNumber = Math.floor(Math.random() * 100) + 1;
+		const asset_properties = {
+			object_type: 'asset_properties',
+			asset_id: assetKey,
+			salt: Buffer.from(randomNumber.toString()).toString('hex'),
+		};
+
+		const asset_properties_string = JSON.stringify(asset_properties);
+		transaction.setTransient({
+			asset_properties: Buffer.from(asset_properties_string)
+		});
+		transaction.setEndorsingOrganizations(endorsingOrg);
+
+		await transaction.submit(assetKey, `${nome_da_entidade}`, `${JSON.stringify(dados_adicionais)}`);
+		console.log(`${GREEN}<-- Submit TransferAssetAtacadista Result: committed, asset ${assetKey}${RESET}`);
+	} catch (transferError) {
+		console.log(`${RED}<-- Failed: TransferAssetAtacadista - ${transferError}${RESET}`);
+	}
+	await sleep(5000); // need to wait for event to be committed
+	// try {
+	// 	// R E A D
+	// 	console.log(`${GREEN}--> Evaluate: ReadAsset, - ${assetKey} ${RESET}`);
+	// 	const resultBuffer = await contract.evaluateTransaction('ReadAsset', assetKey);
+	// 	imprimeAsset(resultBuffer);
+	// } catch (readError) {
+	// 	console.log(`${RED}<-- Failed: ReadAsset - ${readError}${RESET}`);
+	// }
 }
 
 async function transferTransactionVarejista(contract, assetKey, endorsingOrg, nome_da_entidade, dados_adicionais){
@@ -578,118 +745,15 @@ async function transferTransactionVarejista(contract, assetKey, endorsingOrg, no
 		console.log(`${RED}<-- Failed: TransferAssetVarejista - ${transferError}${RESET}`);
 	}
 	await sleep(5000); // need to wait for event to be committed
+	// try {
+	// 	// R E A D
+	// 	console.log(`${GREEN}--> Evaluate: ReadAsset, - ${assetKey} ${RESET}`);
+	// 	const resultBuffer = await contract.evaluateTransaction('ReadAsset', assetKey);
+	// 	imprimeAsset(resultBuffer);
+	// } catch (readError) {
+	// 	console.log(`${RED}<-- Failed: ReadAsset - ${readError}${RESET}`);
+	// }
 }
-
-// async function createGenesisBlock(contract, viticultor, enderecoViticultor, variedadeUva, dataColheita) {
-//     try {
-//         console.log(`${GREEN}--> Submit Transaction: CreateGenesisBlock para Produtor de Vinho${RESET}`);
-
-//         const transaction = contract.createTransaction('CreateGenesisBlock');
-
-//         const genesisData = {
-//             Viticultor: viticultor,
-//             EnderecoViticultor: enderecoViticultor,
-//             VariedadeUva: variedadeUva,
-//             DataColheita: dataColheita,
-//         };
-
-//         await transaction.submit('genesis', JSON.stringify(genesisData));
-//         console.log(`${GREEN}<-- Submit CreateGenesisBlock Result: committed para Produtor de Vinho${RESET}`);
-//         await sleep(5000);
-
-//         // A função readAsset ainda pode ser usada para visualizar os detalhes do bloco genesis.
-//         await readAsset(contract, 'genesis', 'org1', genesisData, 'Produtor de Vinho');
-
-//     } catch (error) {
-//         console.log(`${RED}<-- Failed: CreateGenesisBlock - ${error}${RESET}`);
-//     }
-// }
-
-// async function transferToDistributor(contract, idRemessa, nomeProdutorDistribuidor, enderecoProdutorDistribuidor, lote, dataEmbarque, horaEmbarque) {
-//     try {
-//         console.log(`${GREEN}--> Submit Transaction: TransferToDistributor para Distribuidor${RESET}`);
-//         const transaction = contract.createTransaction('TransferToDistributor');
-
-//         const transferData = {
-//             IDRemessa: idRemessa,
-//             NomeProdutorDistribuidor: nomeProdutorDistribuidor,
-//             EnderecoProdutorDistribuidor: enderecoProdutorDistribuidor,
-//             Lote: lote,
-//             DataEmbarque: dataEmbarque,
-//             HoraEmbarque: horaEmbarque,
-//         };
-
-//         await transaction.submit('genesis', JSON.stringify(transferData));
-//         console.log(`${GREEN}<-- Submit TransferToDistributor Result: committed para Distribuidor${RESET}`);
-
-//     } catch (transferError) {
-//         console.log(`${RED}<-- Failed: TransferToDistributor - ${transferError}${RESET}`);
-//     }
-// }
-
-// async function transferToRetailer(contract, idRemessa, nomeDistribuidor, endereco, dataEmbarque, horaEmbarque) {
-//     try {
-//         console.log(`${GREEN}--> Submit Transaction: TransferToRetailer para Varejista${RESET}`);
-//         const transaction = contract.createTransaction('TransferToRetailer');
-
-//         const transferData = {
-//             IDRemessa: idRemessa,
-//             NomeDistribuidor: nomeDistribuidor,
-//             Endereco: endereco,
-//             DataEmbarque: dataEmbarque,
-//             HoraEmbarque: horaEmbarque,
-//         };
-
-//         await transaction.submit('genesis', JSON.stringify(transferData));
-//         console.log(`${GREEN}<-- Submit TransferToRetailer Result: committed para Varejista${RESET}`);
-
-//     } catch (transferError) {
-//         console.log(`${RED}<-- Failed: TransferToRetailer - ${transferError}${RESET}`);
-//     }
-// }
-
-// async function transferToDistributor(contract, idRemessa, nomeProdutorDistribuidor, enderecoProdutorDistribuidor, lote, dataEmbarque, horaEmbarque) {
-//     try {
-//         console.log(`${GREEN}--> Submit Transaction: TransferToDistributor para Distribuidor${RESET}`);
-//         const transaction = contract.createTransaction('TransferToDistributor');
-
-//         const transferData = {
-//             IDRemessa: idRemessa,
-//             NomeProdutorDistribuidor: nomeProdutorDistribuidor,
-//             EnderecoProdutorDistribuidor: enderecoProdutorDistribuidor,
-//             Lote: lote,
-//             DataEmbarque: dataEmbarque,
-//             HoraEmbarque: horaEmbarque,
-//         };
-
-//         await transaction.submit('genesis', JSON.stringify(transferData));
-//         console.log(`${GREEN}<-- Submit TransferToDistributor Result: committed para Distribuidor${RESET}`);
-
-//     } catch (transferError) {
-//         console.log(`${RED}<-- Failed: TransferToDistributor - ${transferError}${RESET}`);
-//     }
-// }
-
-// async function transferToRetailer(contract, idRemessa, nomeDistribuidor, endereco, dataEmbarque, horaEmbarque) {
-//     try {
-//         console.log(`${GREEN}--> Submit Transaction: TransferToRetailer para Varejista${RESET}`);
-//         const transaction = contract.createTransaction('TransferToRetailer');
-
-//         const transferData = {
-//             IDRemessa: idRemessa,
-//             NomeDistribuidor: nomeDistribuidor,
-//             Endereco: endereco,
-//             DataEmbarque: dataEmbarque,
-//             HoraEmbarque: horaEmbarque,
-//         };
-
-//         await transaction.submit('genesis', JSON.stringify(transferData));
-//         console.log(`${GREEN}<-- Submit TransferToRetailer Result: committed para Varejista${RESET}`);
-
-//     } catch (transferError) {
-//         console.log(`${RED}<-- Failed: TransferToRetailer - ${transferError}${RESET}`);
-//     }
-// }
 
 async function readAsset(contract, assetKey, org1, dados, nome_da_entidade) {
     try {
@@ -705,11 +769,11 @@ async function readAsset(contract, assetKey, org1, dados, nome_da_entidade) {
 
             // Se resultJSON é um objeto, pode ser usado diretamente
             // Chame a função checkAsset com resultJSON
-            checkAsset(org1, resultJSON, 'blue', 'dez', 'Sam', JSON.stringify(dados));
+            checkAsset(org1, resultJSON, 'null', 'null', 'null', 'null', JSON.stringify(dados));
         } catch (jsonError) {
             // Se houver um erro ao analisar, pode ser que o resultado já seja um objeto JavaScript
             // Trate o resultado como um objeto
-            checkAsset(org1, resultBuffer, 'blue', 'dez', 'Sam', JSON.stringify(dados));
+            checkAsset(org1, resultBuffer, 'null', 'null', 'null', 'null', JSON.stringify(dados));
         }
     } catch (error) {
         console.log(`${RED}<-- Failed: ReadAsset - ${error}${RESET}`);
@@ -742,7 +806,7 @@ async function readAssetKeys(contract, org1) {
 
 			console.log(`${GREEN}--> Evaluate: ReadAsset, - ${key}, Le ${entity.nome_da_entidade}${RESET}`);
 			const resultBuffer = await contract.evaluateTransaction('ReadAsset', key);
-			checkAsset(org1, resultBuffer, 'blue', 'dez', 'Sam', JSON.stringify(entity));
+			checkAsset(org1, resultBuffer, 'null', 'null', 'null', 'null', JSON.stringify(entity));
 		
 		}
 	}
@@ -771,6 +835,8 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			gateway = await initGatewayForOrg3(true);
 		} else if (numero_da_entidade === 4){
 			gateway = await initGatewayForOrg4(true);
+		} else if (numero_da_entidade === 5){
+			gateway = await initGatewayForOrg1(true);
 		}
 
 		const network = await gateway.getNetwork(channelName);
@@ -789,29 +855,29 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			listener = async (event) => {
 				const transEvents = event.getTransactionEvents();
 				if (primeira_exe){
-					console.log(`${GREEN}<-- Block Event Received - block number: ${event.blockNumber.toString()}${RESET}`);
+					if (numero_da_entidade !== 5) {console.log(`${GREEN}<-- Block Event Received - block number: ${event.blockNumber.toString()}${RESET}`);}
 					for (const transEvent of transEvents) {
-						console.log(`*** transaction event: ${transEvent.transactionId}`);
+						if (numero_da_entidade !== 5) {console.log(`*** transaction event: ${transEvent.transactionId}`);}
 						if (transEvent.privateData) {
 							for (const namespace of transEvent.privateData.ns_pvt_rwset) {
-								console.log(`    - private data: ${namespace.namespace}`);
+								if (numero_da_entidade !== 5) {console.log(`    - private data: ${namespace.namespace}`);}
 								for (const collection of namespace.collection_pvt_rwset) {
-									console.log(`     - collection: ${collection.collection_name}`);
+									if (numero_da_entidade !== 5) {console.log(`     - collection: ${collection.collection_name}`);}
 									if (collection.rwset.reads) {
 										for (const read of collection.rwset.reads) {
-											console.log(`       - read set - ${BLUE}key:${RESET} ${read.key}  ${BLUE}value:${read.value.toString()}`);
+											if (numero_da_entidade !== 5) {console.log(`       - read set - ${BLUE}key:${RESET} ${read.key}  ${BLUE}value:${read.value.toString()}`);}
 										}
 									}
 									if (collection.rwset.writes) {
 										for (const write of collection.rwset.writes) {
-											console.log(`      - write set - ${BLUE}key:${RESET}${write.key} ${BLUE}is_delete:${RESET}${write.is_delete} ${BLUE}value:${RESET}${write.value.toString()}`);
+											if (numero_da_entidade !== 5) {console.log(`      - write set - ${BLUE}key:${RESET}${write.key} ${BLUE}is_delete:${RESET}${write.is_delete} ${BLUE}value:${RESET}${write.value.toString()}`);}
 										}
 									}
 								}
 							}
 						}
 						if (transEvent.transactionData) {
-							showTransactionData(transEvent.transactionData);
+							if (numero_da_entidade !== 5) {showTransactionData(transEvent.transactionData);}
 						}
 					}
 				}
@@ -822,34 +888,52 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 			primeira_exe = true;	
 			// randomNumber = Math.floor(Math.random() * 1000) + 1;
 			// assetKey = `item-${randomNumber}`;
-			assetKey = 'item-006';
+			assetKey = 'item-001';
 
 			if (numero_da_entidade === 1){
 				
 				await createTransaction(contract, assetKey, org1, org1, dataTransaction, nome_da_entidade);
-				console.log('----------------------------------------------------------------------------');
-				await queryAssetByKey(contract, assetKey);
+				// await queryAssetByKey(contract, assetKey);
 
 			} else if (numero_da_entidade === 2){
 
-				console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
-				await queryAssetByKey(contract, assetKey);
-				console.log('---------------------------------------------------------------------------------------------------------');
+				// console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
+				// await queryAssetByKey(contract, assetKey);
+				// await imprimeAsset(contract, assetKey);
+				// console.log('---------------------------------------------------------------------------------------------------------');
 				await transferTransactionDistribuidor(contract, assetKey, org2, nome_da_entidade, dataTransaction);
-				console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
-				await queryAssetByKey(contract, assetKey);
+				// console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
+				// await queryAssetByKey(contract, assetKey);
+				// await imprimeAsset(contract, assetKey);
 
 			} else if (numero_da_entidade === 3){
 
-				console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
-				await queryAssetByKey(contract, assetKey);
-				console.log('---------------------------------------------------------------------------------------------------------');
-				await transferTransactionVarejista(contract, assetKey, org3, nome_da_entidade, dataTransaction);
-				console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
-				await queryAssetByKey(contract, assetKey);
+				// console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
+				// await queryAssetByKey(contract, assetKey);
+				// await imprimeAsset(contract, assetKey);
+				// console.log('---------------------------------------------------------------------------------------------------------');
+				await transferTransactionAtacadista(contract, assetKey, org3, nome_da_entidade, dataTransaction);
+				// console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
+				// await queryAssetByKey(contract, assetKey);
+				// await imprimeAsset(contract, assetKey);
 
 			} else if (numero_da_entidade === 4){
-				// await readAsset(contract, assetKey, org1, dataTransaction, nome_da_entidade);
+
+				// console.log(`----------------------------------ANTES----${nome_da_entidade}-------------------------------------------`);
+				// await queryAssetByKey(contract, assetKey);
+				// await imprimeAsset(contract, assetKey);
+				// console.log('---------------------------------------------------------------------------------------------------------');
+				await transferTransactionVarejista(contract, assetKey, org4, nome_da_entidade, dataTransaction);
+				// console.log(`----------------------------------DEPOIS----${nome_da_entidade}------------------------------------------`);
+				// await queryAssetByKey(contract, assetKey);
+				// await imprimeAsset(contract, assetKey);
+
+			}		
+			
+			else if (numero_da_entidade === 5){
+				let resultado; 
+				resultado = await queryAssetByKey(contract, dataTransaction);
+				return resultado;
 			}			
 
 			network.removeBlockListener(listener);			
@@ -873,10 +957,13 @@ async function main(dataTransaction, nome_da_entidade, numero_da_entidade) {
 }
 
 module.exports = {
+	main,
 	dados_produtor_de_vinho,
 	dados_distribuidor,
+	dados_atacadista,
 	dados_varejista,
 	getProducerTransaction: () => producerTransaction,
 	getDistributorTransaction: () => distributorTransaction,
+	getAtacadistaTransaction: () => atacadistaTransaction,
 	getRetailerTransaction: () => retailerTransaction,
   };
