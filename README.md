@@ -224,6 +224,15 @@ A API oferece endpoints para cada estágio da produção de vinho. Use o Postman
 
 Para encerrar o servidor, pressione `Ctrl + C` no terminal onde o servidor está sendo executado.
 
+# Substituir elemento em todos os arquivos presentes
+
+```
+for file in `grep -R org4 | awk '{print $1}' | cut -d: -f1 | sort | uniq`
+do 
+    sed -i 's/org4/org5/g' $file
+done
+```
+
 
 
 
