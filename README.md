@@ -10,11 +10,15 @@
 
 As transações na cadeia de suprimentos são validadas por quatro entidades: **Produtor de Vinho**, **Distribuidor a Granel**, **Varejista** e o **Atacadista**.
 
+![Texto Alternativo](https://github.com/edineim/winechain/raw/master/imagens/entidades.JPG)
+
 ## Arquitetura
 
 Quatro organizações, R1, R2, R3 e R4, juntamente com o serviço de pedido do canal, R0, concordam em estabelecer uma rede, N. Esta rede possui uma configuração CC1, com a qual todas as organizações concordam e que lista a definição das organizações, bem como as políticas que definem os papéis que cada organização desempenhará no canal.
 
 Neste canal, R1, R2, R3 e R4 unem pares, denominados P1, P2, P3 e P4, ao canal C1, enquanto R0 possui O, o serviço de pedido do canal. Todos esses nós contêm uma cópia do razão (L1) do canal, onde as transações são registradas e o chaincode (S) instalado, embora as organizações não sejam obrigadas a instalar todos os chaincodes. R1, R2, R3, R4 e R0 também interagem com o canal através dos aplicativos A1, A2, A3 e A4, de sua propriedade. Todas as cinco organizações, mais o serviço de pedido, possuem uma Autoridade de Certificação (CA) que gera os certificados necessários para os nós, administradores, definições de organizações e aplicativos de sua organização.
+
+![Texto Alternativo](https://github.com/edineim/winechain/raw/master/imagens/rede.JPG)
 
 ## Tecnologia Utilizada
 O projeto foi desenvolvido utilizando o **Hyperledger Fabric 2.5**, uma plataforma de blockchain empresarial. Com essa tecnologia, criamos scripts para adicionar duas organizações à rede e implementamos a cadeia de suprimentos de vinhos.
